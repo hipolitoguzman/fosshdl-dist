@@ -5,7 +5,7 @@
 # Set to "yes" if using the full yosys version with the Verific VHDL frontend,
 # set to any other value if using the fully open source yoys version (Verilog
 # only).
-USE_SYMBIOTIC = no
+USE_SYMBIOTIC = yes
 
 # Install prefix (default: user home at ETSI's CdC computers)
 # If installing to system directories, change all "make install *" for "sudo
@@ -26,43 +26,48 @@ GCC_VERSION = 7.3.0
 #DUMP_LOG = &> $@.log
 
 ifeq ($(USE_SYMBIOTIC),yes)
-	targets += symbiotic-$(SYMBIOTIC_VERSION)
+	repos += symbiotic-$(SYMBIOTIC_VERSION)
+	binaries += symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
+	installed += $(PREFIX)/bin/yosys
 else
-	targets += yosys
-	dists += yosys/yosys
+	repos += yosys
+	binaries += yosys/yosys
+	installed += $(PREFIX)/bin/yosys
 endif
 
-targets += ghdl
-targets += UVVM
-targets += arachne-pnr
-targets += nextpnr
-targets += icestorm
-#targets += icestudio
-#targets += fpga-knife
+repos += ghdl
+repos += UVVM
+repos += arachne-pnr
+repos += nextpnr
+repos += icestorm
+#repos += icestudio
+#repos += fpga-knife
 
-dists += ghdl/build/gcc-objs/gcc/ghdl
-#dists += UVVM
-dists += arachne-pnr/arachne-pnrdist
-dists += nextpnr/nextpnrdist
-dists += icestorm/icepack
-#dists += icestudio \
-#dists += fpga-knife
+binaries += ghdl/build/gcc-objs/gcc/ghdl
+#binaries += UVVM
+binaries += arachne-pnr/bin/arachne-pnr
+binaries += nextpnr/bin/nextpnr
+binaries += icestorm/icepack/icepack
+#binaries += icestudio
+#binaries += fpga-knife
 
-installed += $(PREFIX)/bin/yosys
 installed += $(PREFIX)/bin/ghdl
+#installed += $(PREFIX)/bin/UVVM ?
 installed += $(PREFIX)/bin/arachne-pnr
+installed += $(PREFIX)/bin/nextpnr
+installed += $(PREFIX)/bin/icepack
 
 
 .PHONY: all
-all: $(dists)
+all: $(binaries)
 
 .PHONY: all
 install: $(installed)
 
 echo-targets:
-	@echo targets: $(targets)
-	@echo dists: $(dists)
-	@echo installed: $(installed)
+	@echo repos: $(repos)
+	@echo binaries: $(binaries)
+	@echo install-targets: $(installed)
 
 #Get code from repositories
 
@@ -90,6 +95,8 @@ icestudio:
 fpga-knife:
 	git clone https://github.com/qarlosalberto/fpga-knife
 
+
+# Compile and install GHDL
 # Build GHDL with the gcc frontend so code coverage is available (requires
 # GNAT) https://ghdl.readthedocs.io/en/latest/building/gcc/GNULinux-GNAT.html
 ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
@@ -118,27 +125,38 @@ gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
 gcc-$(GCC_VERSION).tar.gz:
 	wget https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.gz
 
-symbiotic-$(SYMBIOTIC_VERSION): symbiotic-$(SYMBIOTIC_VERSION).tar.gz
-	tar xzf $<
 
-# nextpnr and arachne-pnr require icestorm installed
-nextpnr/nextpnrdist: | nextpnr $(PREFIX)/bin/icepack
+# Compile and install nextpnr
+
+nextpnr/bin/nextpnr: | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
 	cmake -DARCH=ice40 -DICEBOX_ROOT="$(PREFIX)/share/icebox" -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
-	make && \
+	make &&
+
+$(PREFIX)/bin/nextpnr: nextpnr/bin/nextpnr
+	cd nextpnr && \
 	make install
 
-arachne-pnr/arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack
+
+# Compile and install arachne-pnr
+
+arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack
 	make -C arachne-pnr PREFIX=$(PREFIX)
 
 $(PREFIX)/bin/arachne-pnr: arachne-pnr/arachne-pnr/bin/arachne-pnr
 	make -C arachne-pnr install PREFIX=$(PREFIX)
+
+
+# Compile and install icestorm
 
 icestorm/icepack/icepack: | icestorm
 	make -C icestorm
 
 $(PREFIX)/bin/icepack: icestorm/icepack/icepack
 	make -C icestorm install PREFIX=$(PREFIX)
+
+
+# Compile and install yosys
 
 yosys/yosys: | yosys
 	make -C yosys config-gcc
@@ -147,8 +165,20 @@ yosys/yosys: | yosys
 $(PREFIX)/bin/yosys: yosys/yosys
 	make -C yosys install PREFIX=$(PREFIX)
 
+
+# Untar and install symbiotic
+
+symbiotic-$(SYMBIOTIC_VERSION): symbiotic-$(SYMBIOTIC_VERSION).tar.gz
+	tar xzf $<
+
+$(PREFIX)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
+	cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/ $(PREFIX)
+
+
+# Clean
+
 clean:
-	rm -rf $(targets)
+	rm -rf $(repos)
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz
 	rm -rf symbiotic-$(SYMBIOTIC_VERSION)
 
