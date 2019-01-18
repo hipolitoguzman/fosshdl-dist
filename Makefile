@@ -5,7 +5,7 @@
 # Set to "yes" if using the full yosys version with the Verific VHDL frontend,
 # set to any other value if using the fully open source yoys version (Verilog
 # only).
-USE_SYMBIOTIC = yes
+USE_SYMBIOTIC = no
 
 # Install prefix (default: user home at ETSI's CdC computers)
 # If installing to system directories, change all "make install *" for "sudo
@@ -29,49 +29,70 @@ ifeq ($(USE_SYMBIOTIC),yes)
 	targets += symbiotic-$(SYMBIOTIC_VERSION)
 else
 	targets += yosys
+	dists += yosys/yosys
 endif
 
-targets += ghdl \
-	   UVVM \
-	   arachne-pnr \
-	   nextpnr \
-	   icestorm \
-	   icestudio \
-	   fpga-knife
+targets += ghdl
+targets += UVVM
+targets += arachne-pnr
+targets += nextpnr
+targets += icestorm
+#targets += icestudio
+#targets += fpga-knife
+
+dists += ghdl/build/gcc-objs/gcc/ghdl
+#dists += UVVM
+dists += arachne-pnr/arachne-pnrdist
+dists += nextpnr/nextpnrdist
+dists += icestorm/icepack
+#dists += icestudio \
+#dists += fpga-knife
+
+installed += $(PREFIX)/bin/yosys
+installed += $(PREFIX)/bin/ghdl
+installed += $(PREFIX)/bin/arachne-pnr
 
 
-all: $(targets)
+.PHONY: all
+all: $(dists)
+
+.PHONY: all
+install: $(installed)
 
 echo-targets:
-	echo targets: $(targets)
+	@echo targets: $(targets)
+	@echo dists: $(dists)
+	@echo installed: $(installed)
+
+#Get code from repositories
 
 ghdl:
-	git clone https://github.com/ghdl/ghdl $(DUMP_LOG)
+	git clone https://github.com/ghdl/ghdl
 
 UVVM:
-	git clone https://github.com/UVVM/UVVM $(DUMP_LOG)
+	git clone https://github.com/UVVM/UVVM
 
 yosys:
-	git clone https://github.com/YosysHQ/yosys $(DUMP_LOG)
+	git clone https://github.com/YosysHQ/yosys
 
 arachne-pnr:
-	git clone https://github.com/YosysHQ/arachne-pnr $(DUMP_LOG)
+	git clone https://github.com/YosysHQ/arachne-pnr
 
 nextpnr:
-	git clone https://github.com/YosysHQ/nextpnr $(DUMP_LOG)
+	git clone https://github.com/YosysHQ/nextpnr
 
 icestorm:
-	git clone https://github.com/cliffordwolf/icestorm $(DUMP_LOG)
+	git clone https://github.com/cliffordwolf/icestorm
 
 icestudio:
-	git clone https://github.com/FPGAwars/icestudio $(DUMP_LOG)
+	git clone https://github.com/FPGAwars/icestudio
 
 fpga-knife:
-	git clone https://github.com/qarlosalberto/fpga-knife $(DUMP_LOG)
+	git clone https://github.com/qarlosalberto/fpga-knife
 
 # Build GHDL with the gcc frontend so code coverage is available (requires
 # GNAT) https://ghdl.readthedocs.io/en/latest/building/gcc/GNULinux-GNAT.html
-ghdl/ghdllib: ghdl gcc-$(VERSION)
+ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	cd ghdl && \
 	mkdir -p build && \
 	cd build && \
@@ -83,9 +104,12 @@ ghdl/ghdllib: ghdl gcc-$(VERSION)
 		-disable-libgomp --disable-libquadmath && \
 	make && \
 	make install && \
-	cd ../../ && \
-	make ghdllib && \
-	make install $(DUMP_LOG)
+	cd ../ && \
+	make ghdllib
+
+$(PREFIX)/bin/ghdl: ghdl/build/gcc-objs/gcc/ghdl
+	cd ghdl/build && \
+	make install
 
 gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
 	tar xzf $<
@@ -98,19 +122,30 @@ symbiotic-$(SYMBIOTIC_VERSION): symbiotic-$(SYMBIOTIC_VERSION).tar.gz
 	tar xzf $<
 
 # nextpnr and arachne-pnr require icestorm installed
-nextpnr/nextpnrdist: nextpnr icestorm/icestormdist
+nextpnr/nextpnrdist: | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
 	cmake -DARCH=ice40 -DICEBOX_ROOT="$(PREFIX)/share/icebox" -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
 	make && \
 	make install
 
-arachne-pnr/arachne-pnrdist: arachne-pnr icestorm/icestormdist
+arachne-pnr/arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack
 	make -C arachne-pnr PREFIX=$(PREFIX)
+
+$(PREFIX)/bin/arachne-pnr: arachne-pnr/arachne-pnr/bin/arachne-pnr
 	make -C arachne-pnr install PREFIX=$(PREFIX)
 
-icestorm/icestormdist: icestorm
+icestorm/icepack/icepack: | icestorm
 	make -C icestorm
+
+$(PREFIX)/bin/icepack: icestorm/icepack/icepack
 	make -C icestorm install PREFIX=$(PREFIX)
+
+yosys/yosys: | yosys
+	make -C yosys config-gcc
+	make -C yosys PREFIX=$(PREFIX)
+
+$(PREFIX)/bin/yosys: yosys/yosys
+	make -C yosys install PREFIX=$(PREFIX)
 
 clean:
 	rm -rf $(targets)
