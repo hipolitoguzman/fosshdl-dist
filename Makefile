@@ -175,10 +175,12 @@ symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: symbiotic-$(SYMBIOTIC_VERSION).tar.gz
 
 ifeq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
+	mkdir -p $(PREFIX)
 	cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/* $(PREFIX)
 endif
 
 $(PREFIX)/symbiotic.lic: symbiotic.lic
+	mkdir -p $(PREFIX)
 	cp symbiotic.lic $(PREFIX)/symbiotic.lic
 
 
