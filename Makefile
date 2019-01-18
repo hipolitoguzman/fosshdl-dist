@@ -47,7 +47,7 @@ repos += icestorm
 binaries += ghdl/build/gcc-objs/gcc/ghdl
 #binaries += UVVM
 binaries += arachne-pnr/bin/arachne-pnr
-binaries += nextpnr/bin/nextpnr
+binaries += nextpnr/nextpnr-ice40
 binaries += icestorm/icepack/icepack
 #binaries += icestudio
 #binaries += fpga-knife
@@ -55,7 +55,7 @@ binaries += icestorm/icepack/icepack
 install-targets += $(PREFIX)/bin/ghdl
 #install-targets += $(PREFIX)/bin/UVVM ?
 install-targets += $(PREFIX)/bin/arachne-pnr
-install-targets += $(PREFIX)/bin/nextpnr
+install-targets += $(PREFIX)/bin/nextpnr-ice40
 install-targets += $(PREFIX)/bin/icepack
 
 .PHONY: all
@@ -128,12 +128,12 @@ gcc-$(GCC_VERSION).tar.gz:
 
 # Compile and install nextpnr
 
-nextpnr/bin/nextpnr: | nextpnr $(PREFIX)/bin/icepack
+nextpnr/nextpnr-ice40: | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
 	cmake -DARCH=ice40 -DICEBOX_ROOT="$(PREFIX)/share/icebox" -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
-	make &&
+	make
 
-$(PREFIX)/bin/nextpnr: nextpnr/bin/nextpnr
+$(PREFIX)/bin/nextpnr-ice40: nextpnr/nextpnr-ice40
 	cd nextpnr && \
 	make install
 
@@ -170,7 +170,7 @@ endif
 
 # Untar and install symbiotic
 
-symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: symbiotic-$(SYMBIOTIC_VERSION).tar.gz
+symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION).tar.gz
 	tar xzf $<
 
 ifeq ($(USE_SYMBIOTIC),yes)
