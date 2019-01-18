@@ -28,11 +28,11 @@ GCC_VERSION = 7.3.0
 ifeq ($(USE_SYMBIOTIC),yes)
 	repos += symbiotic-$(SYMBIOTIC_VERSION)
 	binaries += symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
-	installed += $(PREFIX)/bin/yosys
+	install-targets += $(PREFIX)/bin/yosys
 else
 	repos += yosys
 	binaries += yosys/yosys
-	installed += $(PREFIX)/bin/yosys
+	install-targets += $(PREFIX)/bin/yosys
 endif
 
 repos += ghdl
@@ -51,23 +51,23 @@ binaries += icestorm/icepack/icepack
 #binaries += icestudio
 #binaries += fpga-knife
 
-installed += $(PREFIX)/bin/ghdl
-#installed += $(PREFIX)/bin/UVVM ?
-installed += $(PREFIX)/bin/arachne-pnr
-installed += $(PREFIX)/bin/nextpnr
-installed += $(PREFIX)/bin/icepack
+install-targets += $(PREFIX)/bin/ghdl
+#install-targets += $(PREFIX)/bin/UVVM ?
+install-targets += $(PREFIX)/bin/arachne-pnr
+install-targets += $(PREFIX)/bin/nextpnr
+install-targets += $(PREFIX)/bin/icepack
 
 
 .PHONY: all
 all: $(binaries)
 
 .PHONY: all
-install: $(installed)
+install: $(install-targets)
 
 echo-targets:
 	@echo repos: $(repos)
 	@echo binaries: $(binaries)
-	@echo install-targets: $(installed)
+	@echo install-targetss: $(install-targets)
 
 #Get code from repositories
 
@@ -143,7 +143,7 @@ $(PREFIX)/bin/nextpnr: nextpnr/bin/nextpnr
 arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack
 	make -C arachne-pnr PREFIX=$(PREFIX)
 
-$(PREFIX)/bin/arachne-pnr: arachne-pnr/arachne-pnr/bin/arachne-pnr
+$(PREFIX)/bin/arachne-pnr: arachne-pnr/bin/arachne-pnr
 	make -C arachne-pnr install PREFIX=$(PREFIX)
 
 
@@ -162,17 +162,24 @@ yosys/yosys: | yosys
 	make -C yosys config-gcc
 	make -C yosys PREFIX=$(PREFIX)
 
+ifneq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: yosys/yosys
 	make -C yosys install PREFIX=$(PREFIX)
+endif
 
 
 # Untar and install symbiotic
 
-symbiotic-$(SYMBIOTIC_VERSION): symbiotic-$(SYMBIOTIC_VERSION).tar.gz
+symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: symbiotic-$(SYMBIOTIC_VERSION).tar.gz
 	tar xzf $<
 
+ifeq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
-	cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/ $(PREFIX)
+	cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/* $(PREFIX)
+endif
+
+$(PREFIX)/symbiotic.lic: symbiotic.lic
+	cp symbiotic.lic $(PREFIX)/symbiotic.lic
 
 
 # Clean
