@@ -29,6 +29,7 @@ ifeq ($(USE_SYMBIOTIC),yes)
 	repos += symbiotic-$(SYMBIOTIC_VERSION)
 	binaries += symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
 	install-targets += $(PREFIX)/bin/yosys
+	install-targets += $(PREFIX)/symbiotic.lic
 else
 	repos += yosys
 	binaries += yosys/yosys
@@ -56,7 +57,6 @@ install-targets += $(PREFIX)/bin/ghdl
 install-targets += $(PREFIX)/bin/arachne-pnr
 install-targets += $(PREFIX)/bin/nextpnr
 install-targets += $(PREFIX)/bin/icepack
-
 
 .PHONY: all
 all: $(binaries)
