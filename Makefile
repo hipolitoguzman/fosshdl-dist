@@ -67,7 +67,7 @@ install: $(install-targets)
 echo-targets:
 	@echo repos: $(repos)
 	@echo binaries: $(binaries)
-	@echo install-targetss: $(install-targets)
+	@echo install-targets: $(install-targets)
 
 #Get code from repositories
 
