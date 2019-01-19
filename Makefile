@@ -171,7 +171,7 @@ endif
 # Untar and install symbiotic
 
 symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION).tar.gz
-	tar xzf $<
+	tar xzf symbiotic-$(SYMBIOTIC_VERSION).tar.gz
 
 ifeq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
