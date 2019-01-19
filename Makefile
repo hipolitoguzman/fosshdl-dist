@@ -133,7 +133,10 @@ nextpnr/nextpnr-ice40: | nextpnr $(PREFIX)/bin/icepack
 	cmake -DARCH=ice40 -DICEBOX_ROOT="$(PREFIX)/share/icebox" -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
 	make
 
-$(PREFIX)/bin/nextpnr-ice40: nextpnr/nextpnr-ice40
+# I had to make a quick hack here and add the | because the installation seems
+# to floor() the 'modified' date of the installed executable, causing the
+# target to be be always outdated 
+$(PREFIX)/bin/nextpnr-ice40: | nextpnr/nextpnr-ice40
 	cd nextpnr && \
 	make install
 
