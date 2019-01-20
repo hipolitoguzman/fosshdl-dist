@@ -162,7 +162,7 @@ $(PREFIX)/bin/icepack: icestorm/icepack/icepack
 # Compile and install yosys
 
 yosys/yosys: | yosys
-	make -C yosys config-gcc
+	make -C yosys config-clang
 	make -C yosys PREFIX=$(PREFIX)
 
 ifneq ($(USE_SYMBIOTIC),yes)
@@ -193,4 +193,5 @@ clean:
 	rm -rf $(repos)
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz
 	rm -rf symbiotic-$(SYMBIOTIC_VERSION)
+	rm -rf yosys
 
