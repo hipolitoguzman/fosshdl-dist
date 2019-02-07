@@ -41,14 +41,19 @@ repos += UVVM
 repos += arachne-pnr
 repos += nextpnr
 repos += icestorm
+repos += migen
+repos += iverilog
 #repos += icestudio
 #repos += fpga-knife
+
 
 binaries += ghdl/build/gcc-objs/gcc/ghdl
 #binaries += UVVM
 binaries += arachne-pnr/bin/arachne-pnr
 binaries += nextpnr/nextpnr-ice40
 binaries += icestorm/icepack/icepack
+binaries += migen/whatever
+binaries += iverilog/whatever
 #binaries += icestudio
 #binaries += fpga-knife
 
@@ -57,6 +62,8 @@ install-targets += $(PREFIX)/bin/ghdl
 install-targets += $(PREFIX)/bin/arachne-pnr
 install-targets += $(PREFIX)/bin/nextpnr-ice40
 install-targets += $(PREFIX)/bin/icepack
+install-targets += $(PREFIX)/bin/migenwhatever
+install-targets += $(PREFIX)/bin/iverilogwhatever
 
 .PHONY: all
 all: $(binaries)
@@ -88,6 +95,12 @@ nextpnr:
 
 icestorm:
 	git clone https://github.com/cliffordwolf/icestorm
+
+migen:
+	git clone https://github.com/m-labs/migen
+
+iverilog:
+	git clone https://github.com/steveicarus/iverilog
 
 icestudio:
 	git clone https://github.com/FPGAwars/icestudio
@@ -162,7 +175,7 @@ $(PREFIX)/bin/icepack: icestorm/icepack/icepack
 # Compile and install yosys
 
 yosys/yosys: | yosys
-	make -C yosys config-gcc
+	make -C yosys config-clang
 	make -C yosys PREFIX=$(PREFIX)
 
 ifneq ($(USE_SYMBIOTIC),yes)
