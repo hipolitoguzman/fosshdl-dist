@@ -206,4 +206,5 @@ clean:
 	rm -rf $(repos)
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz
 	rm -rf symbiotic-$(SYMBIOTIC_VERSION)
+	rm -rf yosys
 
