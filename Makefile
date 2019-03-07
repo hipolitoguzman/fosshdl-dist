@@ -186,7 +186,7 @@ endif
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be exported
 uvvm_bin: uvvm $(PREFIX)/bin/ghdl
-	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --uvvm --src uvvm --out uvvm_bin
+	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --all --src uvvm --out uvvm_bin
 
 $(PREFIX)/uvvm_bin: uvvm_bin
 	cp -R $< $@
