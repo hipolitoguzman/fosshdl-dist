@@ -10,11 +10,11 @@ USE_SYMBIOTIC = yes
 # Install prefix (default: user home at ETSI's CdC computers)
 # If installing to system directories, change all "make install *" for "sudo
 # make install *"
-PREFIX = $(HOME)/opt
+PREFIX = $(HOME)/opt/fosshdl-symbiotic
 
 # If using full yosys, put the provided tar.gz in this directory and put here
 # the version number provided by SymbioticEDA
-SYMBIOTIC_VERSION = 20190105A
+SYMBIOTIC_VERSION = 20190204A
 
 # Use a GCC version supported by GHDL (supported versions are listed on
 # https://ghdl.readthedocs.io/en/latest/building/gcc/index.html)
@@ -37,7 +37,7 @@ else
 endif
 
 repos += ghdl
-repos += UVVM
+repos += uvvm
 repos += arachne-pnr
 repos += nextpnr
 repos += icestorm
@@ -48,22 +48,22 @@ repos += iverilog
 
 
 binaries += ghdl/build/gcc-objs/gcc/ghdl
-#binaries += UVVM
+binaries += uvvm_bin
 binaries += arachne-pnr/bin/arachne-pnr
 binaries += nextpnr/nextpnr-ice40
 binaries += icestorm/icepack/icepack
-binaries += migen/whatever
-binaries += iverilog/whatever
+#binaries += migen/whatever
+#binaries += iverilog/whatever
 #binaries += icestudio
 #binaries += fpga-knife
 
 install-targets += $(PREFIX)/bin/ghdl
-#install-targets += $(PREFIX)/bin/UVVM ?
+install-targets += $(PREFIX)/uvvm_bin
 install-targets += $(PREFIX)/bin/arachne-pnr
 install-targets += $(PREFIX)/bin/nextpnr-ice40
 install-targets += $(PREFIX)/bin/icepack
-install-targets += $(PREFIX)/bin/migenwhatever
-install-targets += $(PREFIX)/bin/iverilogwhatever
+#install-targets += $(PREFIX)/bin/migenwhatever
+#install-targets += $(PREFIX)/bin/iverilogwhatever
 
 .PHONY: all
 all: $(binaries)
@@ -81,8 +81,8 @@ echo-targets:
 ghdl:
 	git clone https://github.com/ghdl/ghdl
 
-UVVM:
-	git clone https://github.com/UVVM/UVVM
+uvvm:
+	git clone https://github.com/UVVM/UVVM uvvm
 
 yosys:
 	git clone https://github.com/YosysHQ/yosys
@@ -183,6 +183,14 @@ $(PREFIX)/bin/yosys: yosys/yosys
 	make -C yosys install PREFIX=$(PREFIX)
 endif
 
+# Compile and install uvvm
+# This has to be done using GHDL so $(PREFIX)/bin should be exported
+uvvm_bin: uvvm $(PREFIX)/bin/ghdl
+	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --uvvm --src uvvm --out uvvm_bin
+
+$(PREFIX)/uvvm_bin: uvvm_bin
+	cp -R $< $@
+	cp -R uvvm $(PREFIX)/uvvm_src  # Also copy sources just in case?
 
 # Untar and install symbiotic
 
