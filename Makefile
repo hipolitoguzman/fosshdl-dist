@@ -10,7 +10,7 @@ USE_SYMBIOTIC = yes
 # Install prefix (default: user home at ETSI's CdC computers)
 # If installing to system directories, change all "make install *" for "sudo
 # make install *"
-PREFIX = $(HOME)/opt/fosshdl-symbiotic
+PREFIX = /opt/fosshdl-symbiotic
 
 # If using full yosys, put the provided tar.gz in this directory and put here
 # the version number provided by SymbioticEDA
@@ -109,7 +109,7 @@ fpga-knife:
 	git clone https://github.com/qarlosalberto/fpga-knife
 
 
-# Compile and install GHDL
+# Compile GHDL
 # Build GHDL with the gcc frontend so code coverage is available (requires
 # GNAT) https://ghdl.readthedocs.io/en/latest/building/gcc/GNULinux-GNAT.html
 ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
@@ -122,12 +122,20 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	../../../gcc-7.3.0/configure --prefix=$(PREFIX) --enable-languages=c,vhdl \
 		-disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
 		-disable-libgomp --disable-libquadmath && \
-	make && \
-	make install && \
-	cd ../ && \
+	make
+       
+# I think ghdl must be installed to compile ghdllib #$(PREFIX)/bin/ghdl
+ghdl/build/grt/libgrt.a: ghdl/build/gcc-objs/gcc/ghdl
+	cd ghdl/build && \
 	make ghdllib
 
+# Install GHDL
 $(PREFIX)/bin/ghdl: ghdl/build/gcc-objs/gcc/ghdl
+	cd ghdl/build/gcc-objs && \
+	make install
+
+# Install ghdllib
+$(PREFIX)/lib/ghdl/libgrt.a
 	cd ghdl/build && \
 	make install
 
