@@ -124,12 +124,16 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 		-disable-libgomp --disable-libquadmath && \
 	make
        
-# I think ghdl must be installed to compile ghdllib #$(PREFIX)/bin/ghdl
-ghdl/build/grt/libgrt.a: ghdl/build/gcc-objs/gcc/ghdl
+# GHDL must be installed to compile ghdllib
+ghdl/build/grt/libgrt.a: $(PREFIX)/bin/ghdl
 	cd ghdl/build && \
 	make ghdllib
 
 # Install GHDL
+# Use this target to explicitly install ghdl before compiling ghdllib
+.PHONY: install-ghdl
+install-ghdl: $(PREFIX)/bin/ghdl
+
 $(PREFIX)/bin/ghdl: ghdl/build/gcc-objs/gcc/ghdl
 	cd ghdl/build/gcc-objs && \
 	make install
