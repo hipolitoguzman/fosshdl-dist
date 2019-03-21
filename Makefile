@@ -135,7 +135,7 @@ $(PREFIX)/bin/ghdl: ghdl/build/gcc-objs/gcc/ghdl
 	make install
 
 # Install ghdllib
-$(PREFIX)/lib/ghdl/libgrt.a
+$(PREFIX)/lib/ghdl/libgrt.a: ghdl/build/grt/libgrt.a
 	cd ghdl/build && \
 	make install
 
