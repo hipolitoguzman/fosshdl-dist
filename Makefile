@@ -1,30 +1,15 @@
 # Makefile to make a binary distribution of the FOSS HDL/FPGA tools for teaching
 
-#include config.mk
-
-# Set to "yes" if using the full yosys version with the Verific VHDL frontend,
-# set to any other value if using the fully open source yoys version (Verilog
-# only).
-USE_SYMBIOTIC = yes
-
-# Install prefix (default: user home at ETSI's CdC computers)
-# If installing to system directories, change all "make install *" for "sudo
-# make install *"
-PREFIX = /opt/fosshdl-symbiotic
-
-# If using full yosys, put the provided tar.gz in this directory and put here
-# the version number provided by SymbioticEDA
-SYMBIOTIC_VERSION = 20190204A
-
-# Use a GCC version supported by GHDL (supported versions are listed on
-# https://ghdl.readthedocs.io/en/latest/building/gcc/index.html)
-GCC_VERSION = 7.3.0
+include config.mk
 
 # Put each build log in its own file. Comment to see all logs on the command
 # line
 # (Commented out because it does not work yet)
 #DUMP_LOG = &> $@.log
 
+# Select what to install depending on what was selected in config.mk
+
+ifneq (,$(findstring yosys, $(selected)))
 ifeq ($(USE_SYMBIOTIC),yes)
 	repos += symbiotic-$(SYMBIOTIC_VERSION)
 	binaries += symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
@@ -35,43 +20,67 @@ else
 	binaries += yosys/yosys
 	install-targets += $(PREFIX)/bin/yosys
 endif
+endif
 
-repos += ghdl
-repos += uvvm
-repos += arachne-pnr
-repos += nextpnr
-repos += icestorm
-repos += migen
-repos += iverilog
+ifneq (,$(findstring ghdl, $(selected)))
+	repos += ghdl
+	binaries += ghdl/build/gcc-objs/gcc/ghdl
+	install-targets += $(PREFIX)/bin/ghdl
+endif
+
+ifneq (,$(findstring uvvm, $(selected)))
+	repos += uvvm
+	binaries += uvvm_bin
+	install-targets += $(PREFIX)/uvvm_bin
+endif
+
+ifneq (,$(findstring arachne-pnr, $(selected)))
+	repos += arachne-pnr
+	binaries += arachne-pnr/bin/arachne-pnr
+	install-targets += $(PREFIX)/bin/arachne-pnr
+endif
+
+ifneq (,$(findstring nextpnr, $(selected)))
+	repos += nextpnr
+	binaries += nextpnr/nextpnr-ice40
+	install-targets += $(PREFIX)/bin/nextpnr-ice40
+endif
+
+ifneq (,$(findstring icestorm, $(selected)))
+	repos += icestorm
+	binaries += icestorm/icepack/icepack
+	install-targets += $(PREFIX)/bin/icepack
+endif
+
+#repos += migen
+#repos += iverilog
+#repos += verilator
 #repos += icestudio
+#repos += fusesoc
 #repos += fpga-knife
-
-
-binaries += ghdl/build/gcc-objs/gcc/ghdl
-binaries += uvvm_bin
-binaries += arachne-pnr/bin/arachne-pnr
-binaries += nextpnr/nextpnr-ice40
-binaries += icestorm/icepack/icepack
 #binaries += migen/whatever
 #binaries += iverilog/whatever
+#binaries += verilator/whatever
 #binaries += icestudio
+#binaries += fusesoc
 #binaries += fpga-knife
 
-install-targets += $(PREFIX)/bin/ghdl
-install-targets += $(PREFIX)/uvvm_bin
-install-targets += $(PREFIX)/bin/arachne-pnr
-install-targets += $(PREFIX)/bin/nextpnr-ice40
-install-targets += $(PREFIX)/bin/icepack
 #install-targets += $(PREFIX)/bin/migenwhatever
 #install-targets += $(PREFIX)/bin/iverilogwhatever
+# Verilator compile instructions: https://www.veripool.org/projects/verilator/wiki/Installing
+#install-targets += $(PREFIX)/bin/verilatorwhatever
+#install-targets += $(PREFIX)/bin/fusesocwhatever
+#install-targets += $(PREFIX)/bin/fpga-knifewhatever
 
 .PHONY: all
 all: $(binaries)
 
-.PHONY: all
+.PHONY: install
 install: $(install-targets)
 
+# Check selected tools
 echo-targets:
+	@echo selected: $(selected)
 	@echo repos: $(repos)
 	@echo binaries: $(binaries)
 	@echo install-targets: $(install-targets)
@@ -124,8 +133,8 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 		-disable-libgomp --disable-libquadmath && \
 	make
        
-# I think ghdl must be installed to compile ghdllib #$(PREFIX)/bin/ghdl
-ghdl/build/grt/libgrt.a: ghdl/build/gcc-objs/gcc/ghdl
+# GHDL must be installed to compile ghdllib #$(PREFIX)/bin/ghdl
+ghdl/build/grt/libgrt.a: $(PREFIX)/bin/ghdl
 	cd ghdl/build && \
 	make ghdllib
 
@@ -139,6 +148,7 @@ $(PREFIX)/lib/ghdl/libgrt.a: ghdl/build/grt/libgrt.a
 	cd ghdl/build && \
 	make install
 
+# Download and untar GCC (needed for GHDL)
 gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
 	tar xzf $<
 	cd $@ && ./contrib/download_prerequisites
@@ -155,14 +165,14 @@ nextpnr/nextpnr-ice40: | nextpnr $(PREFIX)/bin/icepack
 	make
 
 # I had to make a quick hack here and add the | because the installation seems
-# to floor() the 'modified' date of the installed executable, causing the
-# target to be be always outdated 
+# to make a floor() operation on the 'modified' date of the installed
+# executable, causing the target to be be always outdated 
 $(PREFIX)/bin/nextpnr-ice40: | nextpnr/nextpnr-ice40
 	cd nextpnr && \
 	make install
 
 
-# Compile and install arachne-pnr
+# Compile and install arachne-pnr. Deprecated by nextpnr, so typically not used.
 
 arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack
 	make -C arachne-pnr PREFIX=$(PREFIX)
@@ -180,7 +190,7 @@ $(PREFIX)/bin/icepack: icestorm/icepack/icepack
 	make -C icestorm install PREFIX=$(PREFIX)
 
 
-# Compile and install yosys
+# Compile and install yosys, if using the open source version
 
 yosys/yosys: | yosys
 	make -C yosys config-clang
@@ -191,16 +201,8 @@ $(PREFIX)/bin/yosys: yosys/yosys
 	make -C yosys install PREFIX=$(PREFIX)
 endif
 
-# Compile and install uvvm
-# This has to be done using GHDL so $(PREFIX)/bin should be exported
-uvvm_bin: uvvm $(PREFIX)/bin/ghdl
-	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --all --src uvvm --out uvvm_bin
 
-$(PREFIX)/uvvm_bin: uvvm_bin
-	cp -R $< $@
-	cp -R uvvm $(PREFIX)/uvvm_src  # Also copy sources just in case?
-
-# Untar and install symbiotic
+# Untar and install symbiotic suite, if using the paid yosys version
 
 symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION).tar.gz
 	tar xzf symbiotic-$(SYMBIOTIC_VERSION).tar.gz
@@ -214,6 +216,16 @@ endif
 $(PREFIX)/symbiotic.lic: symbiotic.lic
 	mkdir -p $(PREFIX)
 	cp symbiotic.lic $(PREFIX)/symbiotic.lic
+
+
+# Compile and install uvvm
+# This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
+uvvm_bin: uvvm $(PREFIX)/bin/ghdl
+	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --all --src uvvm --out uvvm_bin
+
+$(PREFIX)/uvvm_bin: uvvm_bin
+	cp -R $< $@
+	cp -R uvvm $(PREFIX)/uvvm_src  # Also copy sources just in case?
 
 
 # Clean
