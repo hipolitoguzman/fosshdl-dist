@@ -224,7 +224,7 @@ $(PREFIX)/symbiotic.lic: symbiotic.lic
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
-uvvm_bin: uvvm $(PREFIX)/bin/ghdl
+uvvm_bin: uvvm $(PREFIX)/bin/ghdl $(PREFIX)/lib/ghdl/libgrt.a
 	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --all --src uvvm --out uvvm_bin
 
 $(PREFIX)/uvvm_bin: uvvm_bin
