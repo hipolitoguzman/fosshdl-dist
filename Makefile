@@ -34,6 +34,12 @@ ifneq (,$(findstring uvvm, $(selected)))
 	install-targets += $(PREFIX)/uvvm_bin
 endif
 
+#ifneq (,$(findstring cocotb, $(selected)))
+#	repos += cocotb
+#	binaries += cocotb_bin
+#	install-targets += $(PREFIX)/cocotb_bin
+#endif
+
 ifneq (,$(findstring arachne-pnr, $(selected)))
 	repos += arachne-pnr
 	binaries += arachne-pnr/bin/arachne-pnr
@@ -92,6 +98,9 @@ ghdl:
 
 uvvm:
 	git clone https://github.com/UVVM/UVVM uvvm
+
+cocotb:
+	git clone https://github.com/potentialventures/cocotb
 
 yosys:
 	git clone https://github.com/YosysHQ/yosys
@@ -224,7 +233,7 @@ $(PREFIX)/symbiotic.lic: symbiotic.lic
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
-uvvm_bin: uvvm $(PREFIX)/bin/ghdl $(PREFIX)/lib/ghdl/libgrt.a
+uvvm_bin: | uvvm $(PREFIX)/bin/ghdl $(PREFIX)/lib/ghdl/libgrt.a
 	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-uvvm.sh --all --src uvvm --out uvvm_bin
 
 $(PREFIX)/uvvm_bin: uvvm_bin
