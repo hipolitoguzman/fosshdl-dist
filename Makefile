@@ -134,14 +134,14 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	cd ghdl && \
 	mkdir -p build && \
 	cd build && \
-	../configure --with-gcc=../../gcc-7.3.0 --prefix=$(PREFIX) && \
+	../configure --with-gcc=../../gcc-$(GCC_VERSION) --prefix=$(PREFIX) && \
 	make copy-sources && \
 	mkdir -p gcc-objs; cd gcc-objs && \
-	../../../gcc-7.3.0/configure --prefix=$(PREFIX) --enable-languages=c,vhdl \
+	../../../gcc-$(GCC_VERSION)/configure --prefix=$(PREFIX) --enable-languages=c,vhdl \
 		-disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
 		-disable-libgomp --disable-libquadmath && \
 	make
-       
+
 # GHDL must be installed to compile ghdllib
 ghdl/build/grt/libgrt.a: $(PREFIX)/bin/ghdl
 	cd ghdl/build && \
@@ -164,7 +164,7 @@ $(PREFIX)/lib/ghdl/libgrt.a: ghdl/build/grt/libgrt.a
 # Download and untar GCC (needed for GHDL)
 gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
 	tar xzf $<
-	cd $@ && ./contrib/download_prerequisites
+	cd $@ && sed -i contrib/download_prerequisites -e '/base_url=/s/ftp/http/' && ./contrib/download_prerequisites
 
 gcc-$(GCC_VERSION).tar.gz:
 	wget https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.gz
