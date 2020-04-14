@@ -34,11 +34,17 @@ ifneq (,$(findstring uvvm, $(selected)))
 	install-targets += $(PREFIX)/uvvm_bin
 endif
 
-#ifneq (,$(findstring cocotb, $(selected)))
-#	repos += cocotb
+ifneq (,$(findstring osvvm, $(selected)))
+	repos += osvvm
+	binaries += osvvm_bin
+	install-targets += $(PREFIX)/osvvm_bin
+endif
+
+ifneq (,$(findstring cocotb, $(selected)))
+	repos += cocotb
 #	binaries += cocotb_bin
-#	install-targets += $(PREFIX)/cocotb_bin
-#endif
+	install-targets += $(HOME)/.local/bin/cocotb-config
+endif
 
 ifneq (,$(findstring arachne-pnr, $(selected)))
 	repos += arachne-pnr
@@ -63,20 +69,20 @@ endif
 #repos += verilator
 #repos += icestudio
 #repos += fusesoc
-#repos += fpga-knife
+#repos += theroshdl
 #binaries += migen/whatever
 #binaries += iverilog/whatever
 #binaries += verilator/whatever
 #binaries += icestudio
 #binaries += fusesoc
-#binaries += fpga-knife
+#binaries += theroshdl 
 
 #install-targets += $(PREFIX)/bin/migenwhatever
 #install-targets += $(PREFIX)/bin/iverilogwhatever
 # Verilator compile instructions: https://www.veripool.org/projects/verilator/wiki/Installing
 #install-targets += $(PREFIX)/bin/verilatorwhatever
 #install-targets += $(PREFIX)/bin/fusesocwhatever
-#install-targets += $(PREFIX)/bin/fpga-knifewhatever
+#install-targets += $(PREFIX)/bin/theroshdlwhatever
 
 .PHONY: all
 all: $(binaries)
@@ -97,10 +103,13 @@ ghdl:
 	git clone https://github.com/ghdl/ghdl
 
 uvvm:
-	git clone https://github.com/UVVM/UVVM uvvm
+	git clone https://github.com/UVVM/UVVM uvvm --branch $(UVVM_VERSION)
+
+osvvm:
+	git clone https://github.com/OSVVM/OSVVM osvvm
 
 cocotb:
-	git clone https://github.com/potentialventures/cocotb
+	git clone https://github.com/cocotb/cocotb
 
 yosys:
 	git clone https://github.com/YosysHQ/yosys
@@ -130,6 +139,7 @@ fpga-knife:
 # Compile GHDL
 # Build GHDL with the gcc frontend so code coverage is available (requires
 # GNAT) https://ghdl.readthedocs.io/en/latest/building/gcc/GNULinux-GNAT.html
+# ./configure option --enable-synth enables VHDL synthesis (currently beta)
 ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	cd ghdl && \
 	mkdir -p build && \
@@ -139,7 +149,7 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	mkdir -p gcc-objs; cd gcc-objs && \
 	../../../gcc-$(GCC_VERSION)/configure --prefix=$(PREFIX) --enable-languages=c,vhdl \
 		-disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
-		-disable-libgomp --disable-libquadmath && \
+		-disable-libgomp --disable-libquadmath --enable-synth && \
 	make
 
 # GHDL must be installed to compile ghdllib
@@ -241,11 +251,28 @@ $(PREFIX)/uvvm_bin: uvvm_bin
 	cp -R uvvm $(PREFIX)/uvvm_src  # Also copy sources just in case?
 
 
+# Compile and install osvvm
+# This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
+osvvm_bin: | osvvm $(PREFIX)/bin/ghdl $(PREFIX)/lib/ghdl/libgrt.a
+	export PATH=$(PREFIX)/bin:$(PATH) && $(PREFIX)/lib/ghdl/vendors/compile-osvvm.sh --all --src osvvm --out osvvm_bin
+
+$(PREFIX)/osvvm_bin: osvvm_bin
+	cp -R $< $@
+	cp -R osvvm $(PREFIX)/osvvm_src  # Also copy sources just in case?
+
+
+# Install cocotb as user
+$(HOME)/.local/bin/cocotb-config: cocotb
+	pip3 install --user ./cocotb
+
+
 # Clean
 
+.PHONY: clean
 clean:
 	rm -rf $(repos)
+
+.PHONY: realclean
+realclean: clean
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz
-	rm -rf symbiotic-$(SYMBIOTIC_VERSION)
-	rm -rf yosys
 
