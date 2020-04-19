@@ -40,9 +40,20 @@ ifneq (,$(findstring osvvm, $(selected)))
 	install-targets += $(PREFIX)/osvvm_bin
 endif
 
+ifneq (,$(findstring verilator, $(selected)))
+	repos += verilator
+	binaries += verilator/verilator
+	install-targets += $(PREFIX)/bin/verilator
+endif
+
+ifneq (,$(findstring iverilog, $(selected)))
+	repos += iverilog
+	binaries += iverilog/iverilog
+	install-targets += $(PREFIX)/bin/iverilog
+endif
+
 ifneq (,$(findstring cocotb, $(selected)))
 	repos += cocotb
-#	binaries += cocotb_bin
 	install-targets += $(HOME)/.local/bin/cocotb-config
 endif
 
@@ -64,23 +75,19 @@ ifneq (,$(findstring icestorm, $(selected)))
 	install-targets += $(PREFIX)/bin/icepack
 endif
 
+ifneq (,$(findstring icestudio, $(selected)))
+	repos += icestudio
+	install-targets += $(PREFIX)/bin/icestudio
+endif
+
 #repos += migen
-#repos += iverilog
-#repos += verilator
-#repos += icestudio
 #repos += fusesoc
 #repos += theroshdl
 #binaries += migen/whatever
-#binaries += iverilog/whatever
-#binaries += verilator/whatever
-#binaries += icestudio
 #binaries += fusesoc
 #binaries += theroshdl 
 
 #install-targets += $(PREFIX)/bin/migenwhatever
-#install-targets += $(PREFIX)/bin/iverilogwhatever
-# Verilator compile instructions: https://www.veripool.org/projects/verilator/wiki/Installing
-#install-targets += $(PREFIX)/bin/verilatorwhatever
 #install-targets += $(PREFIX)/bin/fusesocwhatever
 #install-targets += $(PREFIX)/bin/theroshdlwhatever
 
@@ -129,8 +136,13 @@ migen:
 iverilog:
 	git clone https://github.com/steveicarus/iverilog
 
-icestudio:
-	git clone https://github.com/FPGAwars/icestudio
+verilator:
+	git clone https://github.com/verilator/verilator
+
+icestudio: $(PREFIX)/icestudio
+
+$(PREFIX)/icestudio:
+	git clone https://github.com/FPGAwars/icestudio $(PREFIX)/icestudio
 
 fpga-knife:
 	git clone https://github.com/qarlosalberto/fpga-knife
@@ -213,6 +225,13 @@ $(PREFIX)/bin/icepack: icestorm/icepack/icepack
 	make -C icestorm install PREFIX=$(PREFIX)
 
 
+# Install icestudio and create a script to launch it
+
+$(PREFIX)/bin/icestudio: $(PREFIX)/icestudio
+	cd $(PREFIX)/icestudio && npm install
+	echo "cd $(PREFIX)/bin/icestudio && npm start" >> $(PREFIX)/bin/icestudio
+	chmod +x $(PREFIX)/bin/icestudio
+
 # Compile and install yosys, if using the open source version
 
 yosys/yosys: | yosys
@@ -263,7 +282,26 @@ $(PREFIX)/osvvm_bin: osvvm_bin
 
 # Install cocotb as user
 $(HOME)/.local/bin/cocotb-config: cocotb
-	pip3 install --user ./cocotb
+	pip3 install ./cocotb
+
+
+# Compile and install verilator
+verilator/verilator: verilator
+	cd verilator && autoconf
+	cd verilator && ./configure --prefix=$(PREFIX)
+	cd verilator && make
+
+$(PREFIX)/bin/verilator: verilator/verilator
+	cd verilator && make install
+
+# Compile and install icarus verilog 
+iverilog/iverilog: iverilog
+	cd iverilog && sh autoconf.sh
+	cd iverilog && ./configure --prefix=$(PREFIX)
+	cd iverilog && make
+
+$(PREFIX)/bin/iverilog: iverilog/iverilog
+	cd iverilog && make install
 
 
 # Clean
@@ -271,6 +309,7 @@ $(HOME)/.local/bin/cocotb-config: cocotb
 .PHONY: clean
 clean:
 	rm -rf $(repos)
+	rm -rf osvvm_bin uvvm_bin
 
 .PHONY: realclean
 realclean: clean
