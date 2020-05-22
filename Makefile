@@ -100,7 +100,7 @@ echo-targets:
 #Get code from repositories
 
 ghdl:
-	git clone https://github.com/ghdl/ghdl
+	git clone https://github.com/ghdl/ghdl --branch $(GHDL_VERSION)
 
 uvvm:
 	git clone https://github.com/UVVM/UVVM uvvm --branch $(UVVM_VERSION)
@@ -174,7 +174,7 @@ $(PREFIX)/lib/ghdl/libgrt.a: ghdl/build/grt/libgrt.a
 # Download and untar GCC (needed for GHDL)
 gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
 	tar xzf $<
-	cd $@ && sed -i contrib/download_prerequisites -e '/base_url=/s/ftp/http/' && ./contrib/download_prerequisites
+	cd $@ && sed -i 's/ftp/http/' contrib/download_prerequisites && ./contrib/download_prerequisites
 
 gcc-$(GCC_VERSION).tar.gz:
 	wget https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.gz
