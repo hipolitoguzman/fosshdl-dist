@@ -1,10 +1,11 @@
-# Where to install 
+# Where to install
+# Make sure you have write permissions in the install location
 # If installing to system directories, change all "make install *" for "sudo
 # make install *"
-PREFIX = /home/salas/opt/fosshdl
+PREFIX = $(HOME)/opt/fosshdl
 
 # Set to "yes" if using the full yosys version with the Verific VHDL frontend,
-# set to any other value if using the open source yoys version (Verilog only).
+# set to any other value if using the open source yosys version (Verilog only).
 USE_SYMBIOTIC = yes
 
 # If using full yosys, put the provided tar.gz in this directory and put here
@@ -16,22 +17,22 @@ SYMBIOTIC_VERSION = 20200402A-sevilla-university
 GCC_VERSION = 9.3.0
 
 # List of software to compile and install. Comment any one you don't want.
-selected += yosys
+#selected += yosys
 selected += ghdl
-selected += uvvm 
-selected += osvvm 
+#selected += uvvm
+#selected += osvvm
 #selected += arachne-pnr
 selected += nextpnr
-selected += icestorm
+#selected += icestorm
+#selected += icestudio
 selected += cocotb
+selected += verilator
+selected += iverilog
 
 # Latest UVVM version that compiles with GHDL
 UVVM_VERSION = v2019.09.02
 
 # Unsupported, but planned:
 #selected += migen
-#selected += iverilog
-#selected += verilator
-#selected += icestudio
 #selected += fusesoc
 #selected += theroshdl 
