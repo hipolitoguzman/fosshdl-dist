@@ -9,6 +9,8 @@ include config.mk
 
 # Select what to install depending on what was selected in config.mk
 
+install-targets += $(PREFIX)/env.rc
+
 ifneq (,$(findstring yosys, $(selected)))
 ifeq ($(USE_SYMBIOTIC),yes)
 	repos += symbiotic-$(SYMBIOTIC_VERSION)
@@ -54,7 +56,12 @@ endif
 
 ifneq (,$(findstring cocotb, $(selected)))
 	repos += cocotb
-	install-targets += $(HOME)/.local/bin/cocotb-config
+	install-targets += $(PREFIX)/bin/cocotb-config
+endif
+
+ifneq (,$(findstring vunit, $(selected)))
+	repos += vunit
+	install-targets += $(PREFIX)/lib/python3.6/site-packages/vunit/vunit_cli.py
 endif
 
 ifneq (,$(findstring arachne-pnr, $(selected)))
@@ -97,6 +104,14 @@ all: $(binaries)
 .PHONY: install
 install: $(install-targets)
 
+$(PREFIX)/env.rc: env.rc
+	$(SUDO) cp env.rc $(PREFIX)/env.rc
+
+env.rc:
+	echo 'export PATH=$$PATH:$(PREFIX)/bin' >> $@
+	echo 'export VUNIT_SIMULATOR=ghdl' >> $@
+	echo 'export SYMBIOTIC_LICENSE=$(PREFIX)/symbiotic.lic' >> $@
+
 # Check selected tools
 echo-targets:
 	@echo selected: $(selected)
@@ -107,7 +122,7 @@ echo-targets:
 #Get code from repositories
 
 ghdl:
-	git clone https://github.com/ghdl/ghdl --branch $(GHDL_VERSION)
+	git clone https://github.com/ghdl/ghdl
 
 uvvm:
 	git clone https://github.com/UVVM/UVVM uvvm --branch $(UVVM_VERSION)
@@ -117,6 +132,9 @@ osvvm:
 
 cocotb:
 	git clone https://github.com/cocotb/cocotb
+
+vunit:
+	git clone --recurse-submodules https://github.com/vunit/vunit
 
 yosys:
 	git clone https://github.com/YosysHQ/yosys
@@ -176,12 +194,12 @@ install-ghdl: $(PREFIX)/bin/ghdl
 
 $(PREFIX)/bin/ghdl: ghdl/build/gcc-objs/gcc/ghdl
 	cd ghdl/build/gcc-objs && \
-	make install
+	$(SUDO) make install
 
 # Install ghdllib
 $(PREFIX)/lib/ghdl/libgrt.a: ghdl/build/grt/libgrt.a
 	cd ghdl/build && \
-	make install
+	$(SUDO) make install
 
 # Download and untar GCC (needed for GHDL)
 gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
@@ -204,7 +222,7 @@ nextpnr/nextpnr-ice40: | nextpnr $(PREFIX)/bin/icepack
 # executable, causing the target to be be always outdated 
 $(PREFIX)/bin/nextpnr-ice40: | nextpnr/nextpnr-ice40
 	cd nextpnr && \
-	make install
+	$(SUDO) make install
 
 
 # Compile and install arachne-pnr. Deprecated by nextpnr, so typically not used.
@@ -222,7 +240,7 @@ icestorm/icepack/icepack: | icestorm
 	make -C icestorm
 
 $(PREFIX)/bin/icepack: icestorm/icepack/icepack
-	make -C icestorm install PREFIX=$(PREFIX)
+	$(SUDO) make -C icestorm install PREFIX=$(PREFIX)
 
 
 # Install icestudio and create a script to launch it
@@ -251,13 +269,13 @@ symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION).tar.g
 
 ifeq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
-	mkdir -p $(PREFIX)
-	cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/* $(PREFIX)
+	$(SUDO) mkdir -p $(PREFIX)
+	$(SUDO) cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/* $(PREFIX)
 endif
 
 $(PREFIX)/symbiotic.lic: symbiotic.lic
-	mkdir -p $(PREFIX)
-	cp symbiotic.lic $(PREFIX)/symbiotic.lic
+	$(SUDO) mkdir -p $(PREFIX)
+	$(SUDO) cp symbiotic.lic $(PREFIX)/symbiotic.lic
 
 
 # Compile and install uvvm
@@ -280,10 +298,13 @@ $(PREFIX)/osvvm_bin: osvvm_bin
 	cp -R osvvm $(PREFIX)/osvvm_src  # Also copy sources just in case?
 
 
-# Install cocotb as user
-$(HOME)/.local/bin/cocotb-config: cocotb
-	pip3 install ./cocotb
+# Install cocotb
+$(PREFIX)/bin/cocotb-config: cocotb
+	$(SUDO) pip3 install --prefix $(PREFIX) ./cocotb
 
+# Install vunit
+$(PREFIX)/lib/python3.6/site-packages/vunit/vunit_cli.py: vunit
+	$(SUDO) pip3 install --prefix $(PREFIX) ./vunit
 
 # Compile and install verilator
 verilator/verilator: verilator
@@ -292,7 +313,7 @@ verilator/verilator: verilator
 	cd verilator && make
 
 $(PREFIX)/bin/verilator: verilator/verilator
-	cd verilator && make install
+	cd verilator && $(SUDO) make install
 
 # Compile and install icarus verilog 
 iverilog/iverilog: iverilog
@@ -301,7 +322,7 @@ iverilog/iverilog: iverilog
 	cd iverilog && make
 
 $(PREFIX)/bin/iverilog: iverilog/iverilog
-	cd iverilog && make install
+	cd iverilog && $(SUDO) make install
 
 
 # Clean
