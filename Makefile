@@ -28,6 +28,7 @@ ifneq (,$(findstring ghdl, $(selected)))
 	repos += ghdl
 	binaries += ghdl/build/gcc-objs/gcc/ghdl
 	install-targets += $(PREFIX)/bin/ghdl
+	install-targets += $(PREFIX)/lib/ghdl/libgrt.a
 endif
 
 ifneq (,$(findstring uvvm, $(selected)))
@@ -105,6 +106,7 @@ all: $(binaries)
 install: $(install-targets)
 
 $(PREFIX)/env.rc: env.rc
+	$(SUDO) mkdir -p $(PREFIX)
 	$(SUDO) cp env.rc $(PREFIX)/env.rc
 
 env.rc:
@@ -170,6 +172,9 @@ fpga-knife:
 # Build GHDL with the gcc frontend so code coverage is available (requires
 # GNAT) https://ghdl.readthedocs.io/en/latest/building/gcc/GNULinux-GNAT.html
 # ./configure option --enable-synth enables VHDL synthesis (currently beta)
+# If system gcc was compiled with the --enable-default-pie option, pass that
+# option to ghdl's gcc's configure
+ENABLE_DEFAULT_PIE = $(shell gcc -v 2>&1 | grep -o "\-\-enable-default-pie")
 ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	cd ghdl && \
 	mkdir -p build && \
@@ -179,7 +184,7 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	mkdir -p gcc-objs; cd gcc-objs && \
 	../../../gcc-$(GCC_VERSION)/configure --prefix=$(PREFIX) --enable-languages=c,vhdl \
 		-disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
-		-disable-libgomp --disable-libquadmath --enable-synth && \
+		-disable-libgomp --disable-libquadmath $(ENABLE_DEFAULT_PIE) && \
 	make
 
 # GHDL must be installed to compile ghdllib
@@ -331,6 +336,7 @@ $(PREFIX)/bin/iverilog: iverilog/iverilog
 clean:
 	rm -rf $(repos)
 	rm -rf osvvm_bin uvvm_bin
+	rm -f env.rc
 
 .PHONY: realclean
 realclean: clean
