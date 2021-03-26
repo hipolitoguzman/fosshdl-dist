@@ -31,6 +31,12 @@ ifneq (,$(findstring ghdl, $(selected)))
 	install-targets += $(PREFIX)/lib/ghdl/libgrt.a
 endif
 
+ifneq (,$(findstring ghdl-yosys-plugin, $(selected)))
+	repos += ghdl-yosys-plugin
+	binaries += ghdl-yosys-plugin/ghdl.so
+	install-targets += $(PREFIX)/share/yosys/plugins/ghdl.so
+endif
+
 ifneq (,$(findstring uvvm, $(selected)))
 	repos += uvvm
 	binaries += uvvm_bin
@@ -126,6 +132,9 @@ echo-targets:
 ghdl:
 	git clone https://github.com/ghdl/ghdl
 
+ghdl-yosys-plugin:
+	git clone https://github.com/ghdl/ghdl-yosys-plugin
+
 uvvm:
 	git clone https://github.com/UVVM/UVVM uvvm --branch $(UVVM_VERSION)
 
@@ -214,6 +223,16 @@ gcc-$(GCC_VERSION): gcc-$(GCC_VERSION).tar.gz
 gcc-$(GCC_VERSION).tar.gz:
 	wget https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.gz
 
+
+# Compile and install ghdl-yosys-plugin
+ghdl-yosys-plugin/ghdl.so: ghdl-yosys-plugin $(PREFIX)/bin/ghdl $(PREFIX)/bin/yosys
+	cd ghdl-yosys-plugin && \
+	sed -i "s=ghdl/synth.h=ghdlsynth.h=" src/ghdl.cc && \
+	make
+
+$(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
+	cd ghdl-yosys-plugin && \
+	make install
 
 # Compile and install nextpnr
 
