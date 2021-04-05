@@ -154,7 +154,7 @@ arachne-pnr:
 	git clone https://github.com/YosysHQ/arachne-pnr
 
 nextpnr:
-	git clone https://github.com/YosysHQ/nextpnr
+	git clone --recursive https://github.com/YosysHQ/nextpnr
 
 icestorm:
 	git clone https://github.com/cliffordwolf/icestorm
@@ -225,20 +225,21 @@ gcc-$(GCC_VERSION).tar.gz:
 
 
 # Compile and install ghdl-yosys-plugin
-ghdl-yosys-plugin/ghdl.so: ghdl-yosys-plugin $(PREFIX)/bin/ghdl $(PREFIX)/bin/yosys
+ghdl-yosys-plugin/ghdl.so: ghdl-yosys-plugin $(PREFIX)/bin/ghdl $(PREFIX)/bin/yosys $(PREFIX)/lib/ghdl/libgrt.a $(PREFIX)/env.rc
 	cd ghdl-yosys-plugin && \
-	sed -i "s=ghdl/synth.h=ghdlsynth.h=" src/ghdl.cc && \
+	. $(PREFIX)/env.rc && \
 	make
 
 $(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
 	cd ghdl-yosys-plugin && \
+	. $(PREFIX)/env.rc && \
 	make install
 
 # Compile and install nextpnr
 
-nextpnr/nextpnr-ice40: | nextpnr $(PREFIX)/bin/icepack
+nextpnr/nextpnr-ice40: $(PREFIX)/bin/icepack | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
-	cmake -DARCH=ice40 -DICEBOX_ROOT="$(PREFIX)/share/icebox" -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
+	cmake -DARCH=ice40 -DICESTORM_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
 	make
 
 # I had to make a quick hack here and add the | because the installation seems
