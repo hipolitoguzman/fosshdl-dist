@@ -115,8 +115,12 @@ $(PREFIX)/env.rc: env.rc
 	$(SUDO) mkdir -p $(PREFIX)
 	$(SUDO) cp env.rc $(PREFIX)/env.rc
 
+# It seems that for env.rc we have to put ghdl's gcc before system gcc in order
+# for code coverage to work correcly, unless we use the exact system version.
+# But typically we have to use a different one because gcc 9 seems to break
+# ghdl's code coverage
 env.rc:
-	echo 'export PATH=$$PATH:$(PREFIX)/bin' >> $@
+	echo 'export PATH=$(PREFIX)/bin:$$PATH' >> $@
 	echo 'export VUNIT_SIMULATOR=ghdl' >> $@
 	echo 'export SYMBIOTIC_LICENSE=$(PREFIX)/symbiotic.lic' >> $@
 
@@ -192,8 +196,9 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 	make copy-sources && \
 	mkdir -p gcc-objs; cd gcc-objs && \
 	../../../gcc-$(GCC_VERSION)/configure --prefix=$(PREFIX) --enable-languages=c,vhdl \
-		-disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
-		-disable-libgomp --disable-libquadmath $(ENABLE_DEFAULT_PIE) && \
+		--disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
+		--disable-libgomp --disable-libquadmath $(ENABLE_DEFAULT_PIE) \
+	        --enable-synth && \
 	make
 
 # GHDL must be installed to compile ghdllib
