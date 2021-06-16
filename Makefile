@@ -213,7 +213,7 @@ install-ghdl: $(PREFIX)/bin/ghdl
 
 $(PREFIX)/bin/ghdl: ghdl/build/gcc-objs/gcc/ghdl
 	cd ghdl/build/gcc-objs && \
-	$(SUDO) make install
+	$(SUDO) make install MAKEINFO=true
 
 # Install ghdllib
 $(PREFIX)/lib/ghdl/libgrt.a: ghdl/build/grt/libgrt.a
@@ -244,7 +244,7 @@ $(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
 
 nextpnr/nextpnr-ice40: $(PREFIX)/bin/icepack | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
-	cmake -DARCH=ice40 -DICESTORM_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
+	cmake -DARCH=ice40 -DBUILD_GUI=ON -DICESTORM_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
 	make
 
 # I had to make a quick hack here and add the | because the installation seems
