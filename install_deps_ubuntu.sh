@@ -1,5 +1,5 @@
 #!/bin/sh
-COMMON_SW="lcov gtkwave octave"
+COMMON_SW="git lcov gtkwave octave"
 COMMON_DEPS="make build-essential g++"
 YOSYS_DEPS="tcl tcl-dev clang"
 GHDL_DEPS="gnat texinfo zlib1g-dev"
