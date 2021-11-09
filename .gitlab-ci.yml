@@ -21,4 +21,4 @@ build-software:
     - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
   artifacts:
     paths:
-      - /home/salas/fosshdl.tar.gz
+      - fosshdl.tar.gz
