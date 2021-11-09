@@ -1,12 +1,13 @@
 stages:
   - build
 
+# Compile the software and make a tarball
 build-software:
   stage: build
   image: ubuntu:20.04
   script:
-    - apt update
-    - apt install -y build-essential tar
+    - DEBIAN_FRONTEND=noninteractive apt update
+    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
