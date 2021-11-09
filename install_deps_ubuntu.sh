@@ -2,7 +2,7 @@
 COMMON_SW="git lcov gtkwave octave"
 COMMON_DEPS="make build-essential g++"
 YOSYS_DEPS="tcl tcl-dev clang"
-GHDL_DEPS="gnat texinfo zlib1g-dev"
+GHDL_DEPS="wget gnat texinfo zlib1g-dev"
 COCOTB_DEPS="python3-pip"
 ICESTORM_DEPS="libftdi-dev"
 NEXTPNR_DEPS="cmake clang-format qt5-default python3-dev libboost-all-dev libeigen3-dev"
