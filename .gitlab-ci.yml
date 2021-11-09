@@ -3,6 +3,7 @@ stages:
 
 build-software:
   stage: build
+  image: ubuntu:20.04
   script:
     - apt update
     - apt install -y build-essential tar
