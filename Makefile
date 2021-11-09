@@ -24,6 +24,11 @@ else
 endif
 endif
 
+ifneq (,$(findstring symbiyosys, $(selected)))
+	repos += symbiyosys
+	install-targets += $(PREFIX)/bin/sby
+endif
+
 ifneq (,$(findstring ghdl, $(selected)))
 	repos += ghdl
 	binaries += ghdl/build/gcc-objs/gcc/ghdl
@@ -94,6 +99,9 @@ ifneq (,$(findstring icestudio, $(selected)))
 	install-targets += $(PREFIX)/bin/icestudio
 endif
 
+
+
+
 #repos += migen
 #repos += fusesoc
 #repos += theroshdl
@@ -122,7 +130,7 @@ $(PREFIX)/env.rc: env.rc
 env.rc:
 	echo 'export PATH=$(PREFIX)/bin:$$PATH' >> $@
 	echo 'export VUNIT_SIMULATOR=ghdl' >> $@
-	echo 'export SYMBIOTIC_LICENSE=$(PREFIX)/symbiotic.lic' >> $@
+	echo 'export GHDL_PLUGIN_MODULE=ghdl' >> $@
 
 # Check selected tools
 echo-targets:
@@ -132,6 +140,12 @@ echo-targets:
 	@echo install-targets: $(install-targets)
 
 #Get code from repositories
+
+yosys:
+	git clone https://github.com/YosysHQ/yosys
+
+symbiyosys:
+	git clone https://github.com/YosysHQ/SymbiYosys symbiyosys
 
 ghdl:
 	git clone https://github.com/ghdl/ghdl
@@ -150,9 +164,6 @@ cocotb:
 
 vunit:
 	git clone --recurse-submodules https://github.com/vunit/vunit
-
-yosys:
-	git clone https://github.com/YosysHQ/yosys
 
 arachne-pnr:
 	git clone https://github.com/YosysHQ/arachne-pnr
@@ -176,9 +187,6 @@ icestudio: $(PREFIX)/icestudio
 
 $(PREFIX)/icestudio:
 	git clone https://github.com/FPGAwars/icestudio $(PREFIX)/icestudio
-
-fpga-knife:
-	git clone https://github.com/qarlosalberto/fpga-knife
 
 
 # Compile GHDL
@@ -307,6 +315,10 @@ $(PREFIX)/symbiotic.lic: symbiotic.lic
 	$(SUDO) mkdir -p $(PREFIX)
 	$(SUDO) cp symbiotic.lic $(PREFIX)/symbiotic.lic
 
+# Compile and install symbiyosys. This is all done in one step since it is all
+# grouped into a single step in symbiosys' Makefile
+$(PREFIX)/bin/sby: symbiyosys
+	$(SUDO) make PREFIX=$(PREFIX) make install
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
