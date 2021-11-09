@@ -360,6 +360,19 @@ iverilog/iverilog: iverilog
 $(PREFIX)/bin/iverilog: iverilog/iverilog
 	cd iverilog && $(SUDO) make install
 
+# Make tar file with binaries
+# Change (with -C) to $(PREFIX)/.. directory before making the tarball so we
+# don't have the full path when we decompress the file, just the fosshdl folder
+# Of course this would be messy if you are installing to a folder where you
+# already have binaries, such as /usr/local/
+blob: $(install-targets)
+	tar czvf fosshdl.tar.gz -C $(PREFIX)/.. $(PREFIX)/..
+
+# Make a docker image with the software
+# Since this depends on the blob, the previous considerations apply also to
+# this step
+dockerimage: blob
+	docker build -t fosshdl .
 
 # Clean
 
@@ -371,5 +384,6 @@ clean:
 
 .PHONY: realclean
 realclean: clean
+	rm fosshdl.tar.gz
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz
 

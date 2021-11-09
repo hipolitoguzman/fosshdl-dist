@@ -2,20 +2,23 @@ stages:
   - build
 
 # Compile the software and make a tarball
+# Also make a docker image and push it to the container registry
 build-software:
   stage: build
   image: ubuntu:20.04
   timeout: 6 hours
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
-    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
+    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar docker.io
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
     - cp config-salas.mk config.mk
     - make echo-targets
     - make install
-    - cd /home/salas && tar zcvf fosshdl-`date +%Y%m%d`.tar.gz fosshdl
+    - make blob
+    - make dockerimage
+    - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
   artifacts:
     paths:
-      - /home/salas/fosshdl*.tar.gz
+      - /home/salas/fosshdl.tar.gz

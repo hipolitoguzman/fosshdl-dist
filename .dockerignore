@@ -1,0 +1,4 @@
+# Ignore all except the fosshdl.tar.gz file
+*
+.git
+!fosshdl.tar.gz
