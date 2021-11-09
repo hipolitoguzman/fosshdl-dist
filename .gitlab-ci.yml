@@ -1,0 +1,16 @@
+stages:
+  - build
+
+build-software:
+  stage: build
+  script:
+    - apt update
+    - apt install -y build-essential tar
+    - sh install_deps_ubuntu.sh
+    - cp config-salas.mk config.mk
+    - make echo-targets
+    - make install
+    - cd /home/salas && tar zcvf fosshdl-`date +%Y%m%d`.tar.gz fosshdl
+  artifacts:
+    paths:
+      - /home/salas/fosshdl*.tar.gz
