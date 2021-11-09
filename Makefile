@@ -12,20 +12,14 @@ include config.mk
 install-targets += $(PREFIX)/env.rc
 
 ifneq (,$(findstring yosys, $(selected)))
-ifeq ($(USE_SYMBIOTIC),yes)
-	repos += symbiotic-$(SYMBIOTIC_VERSION)
-	binaries += symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
-	install-targets += $(PREFIX)/bin/yosys
-	install-targets += $(PREFIX)/symbiotic.lic
-else
 	repos += yosys
 	binaries += yosys/yosys
 	install-targets += $(PREFIX)/bin/yosys
 endif
-endif
 
-ifneq (,$(findstring symbiyosys, $(selected)))
+ifneq (,$(findstring SymbiYosys, $(selected)))
 	repos += symbiyosys
+	binaries += symbiyosys/bin/sby
 	install-targets += $(PREFIX)/bin/sby
 endif
 
@@ -318,7 +312,7 @@ $(PREFIX)/symbiotic.lic: symbiotic.lic
 # Compile and install symbiyosys. This is all done in one step since it is all
 # grouped into a single step in symbiosys' Makefile
 $(PREFIX)/bin/sby: symbiyosys
-	$(SUDO) make PREFIX=$(PREFIX) make install
+	$(SUDO) make -C symbiyosys PREFIX=$(PREFIX) install
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
