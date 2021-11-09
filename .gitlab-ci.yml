@@ -6,6 +6,8 @@ build-software:
   script:
     - apt update
     - apt install -y build-essential tar
+    - pwd
+    - ls
     - sh install_deps_ubuntu.sh
     - cp config-salas.mk config.mk
     - make echo-targets
