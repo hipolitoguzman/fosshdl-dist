@@ -1,5 +1,6 @@
 stages:
   - build
+  - dockerize
 
 # Compile the software and make a tarball
 # Also make a docker image and push it to the container registry
@@ -23,3 +24,15 @@ build-software:
   artifacts:
     paths:
       - fosshdl.tar.gz
+
+# We should make the docker image in a separate stage
+# TODO: when this works, remove the docker commands from the previous stage
+dockerimages:
+  stage: dockerize
+  image: ubuntu:20.04
+  timeout: 1 hour
+  dependencies:
+    - build-software
+  script:
+    - make dockerimage
+    - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
