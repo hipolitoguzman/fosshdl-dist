@@ -357,32 +357,36 @@ $(PREFIX)/bin/z3: z3
 	$(SUDO) make install
 
 $(PREFIX)/bin/super_prove: super-prove-build
-	cd super-prove-build && mkdir build && cd build && \
+	cd super-prove-build && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) -G Ninja .. && \
 	ninja && \
-	ninja package \
-	$(SUDO) tar -C $(PREFIX) -x super_prove-*-Release.tar.gz
+	ninja package && \
+	cp super_prove-*-Release.tar.gz super_prove.tar.gz && \
+	$(SUDO) tar -C $(PREFIX) -x --file super_prove.tar.gz
 
 $(PREFIX)/bin/suprove: $(PREFIX)/bin/super_prove
-	echo '#!/bin/bash' > $@ && \
-	echo 'tool=super_prove; if [ "$$1" != "$${1#+}" ]; then tool="$${1#+}"; shift; fi' >> $@ && \
-	echo 'exec /usr/local/super_prove/bin/$${tool}.sh "$$@"' >> $@
-	$(SUDO) chmod +x @<
+	echo '#!/bin/bash' > $@
+	echo 'tool=super_prove; if [ "$$1" != "$${1#+}" ]; then tool="$${1#+}"; shift; fi' >> $@
+	echo 'exec $(PREFIX)/super_prove/bin/$${tool}.sh "$$@"' >> $@
+	$(SUDO) chmod +x $@
 
 $(PREFIX)/bin/avy: extavy
-	cd extavy && git submodule update --init && mkdir build && cd build && \
+	cd extavy && git submodule update --init && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) .. && \
 	make && \
-	$(SUDO) cp avy/src/{avy,avybmc} $(PREFIX)/bin
+	pwd && \
+	$(SUDO) cp avy/src/avy $(PREFIX)/bin && \
+	$(SUDO) cp avy/src/avybmc $(PREFIX)/bin
 
 $(PREFIX)/bin/boolector: boolector
 	cd boolector && \
 	./contrib/setup-btor2tools.sh && \
 	./contrib/setup-lingeling.sh && \
-	./configure.sh --prefix=$(PREFIX) && \
+	./configure.sh --prefix $(PREFIX) && \
 	make -C build && \
-	sudo cp build/bin/{boolector,btor*} $(PREFIX)/bin/ && \
-	sudo cp deps/btor2tools/bin/btorsim $(PREFIX)/bin/
+	$(SUDO) cp build/bin/boolector $(PREFIX)/bin/ && \
+	$(SUDO) cp build/bin/btor* $(PREFIX)/bin/ && \
+	$(SUDO) cp deps/btor2tools/bin/btorsim $(PREFIX)/bin/
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
