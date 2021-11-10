@@ -17,6 +17,7 @@ build-software:
     - make echo-targets
     - make install
     - make blob
+    - cat ~/.docker/config.json
     - make dockerimage
     - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
   artifacts:
