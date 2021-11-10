@@ -159,8 +159,15 @@ z3:
 super-prove-build:
 	git clone --recursive https://github.com/sterin/super-prove-build
 
+# For avy to compile with gcc 9.3.0 (the one in ubuntu 20.04 we need to apply
+# this patch from Michael Jorgensen:
+# https://github.com/MJoergen/formal/blob/main/INSTALL.md
+# We will just perform a substitution in the affected files
 extavy:
 	git clone https://bitbucket.org/arieg/extavy.git
+	cd extavy && git submodule update --init
+	sed -i 's/bool isSolved () { return m_Trivial || m_State || !m_State; }/bool isSolved () { return bool{m_Trivial || m_State || !m_State}; }/' extavy/avy/src/ItpGlucose.h
+	sed -i 's/bool isSolved () { return m_Trivial || m_State || !m_State; }/bool isSolved () { return bool{m_Trivial || m_State || !m_State}; }/' extavy/avy/src/ItpMinisat.h
 
 boolector:
 	git clone https://github.com/boolector/boolector
@@ -371,7 +378,7 @@ $(PREFIX)/bin/suprove: $(PREFIX)/bin/super_prove
 	$(SUDO) chmod +x $@
 
 $(PREFIX)/bin/avy: extavy
-	cd extavy && git submodule update --init && mkdir -p build && cd build && \
+	cd extavy && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) .. && \
 	make && \
 	pwd && \
