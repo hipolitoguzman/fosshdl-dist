@@ -19,8 +19,17 @@ endif
 
 ifneq (,$(findstring SymbiYosys, $(selected)))
 	repos += symbiyosys
-	binaries += symbiyosys/bin/sby
+	repos += yices2
+	repos += z3
+	repos += super-prove-build
+	repos += extavy
+	repos += boolector
 	install-targets += $(PREFIX)/bin/sby
+	install-targets += $(PREFIX)/bin/yices
+	install-targets += $(PREFIX)/bin/z3
+	install-targets += $(PREFIX)/bin/suprove
+	install-targets += $(PREFIX)/bin/avy
+	install-targets += $(PREFIX)/bin/boolector
 endif
 
 ifneq (,$(findstring ghdl, $(selected)))
@@ -140,6 +149,21 @@ yosys:
 
 symbiyosys:
 	git clone https://github.com/YosysHQ/SymbiYosys symbiyosys
+
+yices2:
+	git clone https://github.com/SRI-CSL/yices2.git
+
+z3:
+	git clone https://github.com/Z3Prover/z3.git
+
+super-prove-build:
+	git clone --recursive https://github.com/sterin/super-prove-build
+
+extavy:
+	git clone https://bitbucket.org/arieg/extavy.git
+
+boolector:
+	git clone https://github.com/boolector/boolector
 
 ghdl:
 	git clone https://github.com/ghdl/ghdl
@@ -313,6 +337,52 @@ $(PREFIX)/symbiotic.lic: symbiotic.lic
 # grouped into a single step in symbiosys' Makefile
 $(PREFIX)/bin/sby: symbiyosys
 	$(SUDO) make -C symbiyosys PREFIX=$(PREFIX) install
+
+# Compile and install the solvers that SymbiYosys can use
+# Instructions came from here:
+# https://yosyshq.readthedocs.io/projects/sby/en/latest/install.html#prerequisites
+# TODO: check for correctness, add to binaries list
+$(PREFIX)/bin/yices: yices2
+	cd yices2 && \
+	autoconf && \
+	./configure --prefix=$(PREFIX) && \
+	make && \
+	$(SUDO) make install
+
+$(PREFIX)/bin/z3: z3
+	cd z3 && \
+	python scripts/mk_make.py --prefix=$(PREFIX) && \
+	cd build && \
+	make && \
+	$(SUDO) make install
+
+$(PREFIX)/bin/super_prove: super-prove-build
+	cd super-prove-build && mkdir build && cd build && \
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) -G Ninja .. && \
+	ninja && \
+	ninja package \
+	$(SUDO) tar -C $(PREFIX) -x super_prove-*-Release.tar.gz
+
+$(PREFIX)/bin/suprove: $(PREFIX)/bin/super_prove
+	echo '#!/bin/bash' > $@ && \
+	echo 'tool=super_prove; if [ "$$1" != "$${1#+}" ]; then tool="$${1#+}"; shift; fi' >> $@ && \
+	echo 'exec /usr/local/super_prove/bin/$${tool}.sh "$$@"' >> $@
+	$(SUDO) chmod +x @<
+
+$(PREFIX)/bin/avy: extavy
+	cd extavy && git submodule update --init && mkdir build && cd build && \
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) .. && \
+	make && \
+	$(SUDO) cp avy/src/{avy,avybmc} $(PREFIX)/bin
+
+$(PREFIX)/bin/boolector: boolector
+	cd boolector && \
+	./contrib/setup-btor2tools.sh && \
+	./contrib/setup-lingeling.sh && \
+	./configure.sh --prefix=$(PREFIX) && \
+	make -C build && \
+	sudo cp build/bin/{boolector,btor*} $(PREFIX)/bin/ && \
+	sudo cp deps/btor2tools/bin/btorsim $(PREFIX)/bin/
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
