@@ -162,11 +162,14 @@ super-prove-build:
 # For avy to compile with gcc 9.3.0 (the one in ubuntu 20.04 we need to apply
 # this patch from Michael Jorgensen:
 # https://github.com/MJoergen/formal/blob/main/INSTALL.md
+# And this third change:
+# https://github.com/YosysHQ/fpga-toolchain/issues/57
 # We will just perform a substitution in the affected files
 extavy:
 	git clone https://bitbucket.org/arieg/extavy.git
 	cd extavy && git submodule update --init
 	sed -i 's/bool isSolved () { return m_Trivial || m_State || !m_State; }/bool isSolved () { return bool{m_Trivial || m_State || !m_State}; }/' extavy/avy/src/ItpGlucose.h
+	sed -i 's/return tobool (m_pSat->modelValue(x));/boost::logic::tribool y = tobool (m_pSat->modelValue(x));\nreturn bool{y};/' extavy/avy/src/ItpGlucose.h
 	sed -i 's/bool isSolved () { return m_Trivial || m_State || !m_State; }/bool isSolved () { return bool{m_Trivial || m_State || !m_State}; }/' extavy/avy/src/ItpMinisat.h
 
 boolector:
@@ -465,6 +468,6 @@ clean:
 
 .PHONY: realclean
 realclean: clean
-	rm fosshdl.tar.gz
+	rm -f fosshdl.tar.gz
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz
 
