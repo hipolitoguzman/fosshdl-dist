@@ -12,20 +12,20 @@ PREFIX = /home/salas/fosshdl
 GCC_VERSION = 7.5.0
 
 # List of software to compile and install. Comment any one you don't want.
-#selected += yosys
+selected += yosys
 selected += SymbiYosys
-#selected += ghdl
-#selected += ghdl-yosys-plugin
-##selected += uvvm
-##selected += osvvm
-##selected += arachne-pnr
-#selected += nextpnr
-#selected += icestorm
-##selected += icestudio
-##selected += cocotb
-##selected += vunit
-##selected += verilator
-##selected += iverilog
+selected += ghdl
+selected += ghdl-yosys-plugin
+#selected += uvvm
+#selected += osvvm
+#selected += arachne-pnr
+selected += nextpnr
+selected += icestorm
+#selected += icestudio
+#selected += cocotb
+#selected += vunit
+#selected += verilator
+#selected += iverilog
 
 # Latest UVVM version that compiles with GHDL
 UVVM_VERSION = v2019.09.02

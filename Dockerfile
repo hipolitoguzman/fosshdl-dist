@@ -11,7 +11,7 @@ RUN set -ex ; \
   # Mandatory update
   apt-get -y update ; \
   # Install software we need
-  apt install -y git make gcc lcov gcovr gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
+  apt install -y git make tar gcc lcov gcovr gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
   # Apt cleanup
   apt-get -y clean ; \
   apt-get -y autoclean ; \

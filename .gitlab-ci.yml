@@ -30,6 +30,8 @@ dockerimages:
   dependencies:
     - build-software
   script:
+    - DEBIAN_FRONTEND=noninteractive apt update
+    - DEBIAN_FRONTEND=noninteractive apt install -y make tar docker.io
     - cat ~/.docker/config.json
     - make dockerimage
     - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl

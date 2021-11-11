@@ -366,7 +366,7 @@ $(PREFIX)/bin/z3: z3
 	make && \
 	$(SUDO) make install
 
-$(PREFIX)/bin/super_prove: super-prove-build
+$(PREFIX)/super_prove/bin/super_prove.sh: super-prove-build
 	cd super-prove-build && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) -G Ninja .. && \
 	ninja && \
@@ -374,7 +374,7 @@ $(PREFIX)/bin/super_prove: super-prove-build
 	cp super_prove-*-Release.tar.gz super_prove.tar.gz && \
 	$(SUDO) tar -C $(PREFIX) -x --file super_prove.tar.gz
 
-$(PREFIX)/bin/suprove: $(PREFIX)/bin/super_prove
+$(PREFIX)/bin/suprove: $(PREFIX)/super_prove/bin/super_prove.sh
 	echo '#!/bin/bash' > $@
 	echo 'tool=super_prove; if [ "$$1" != "$${1#+}" ]; then tool="$${1#+}"; shift; fi' >> $@
 	echo 'exec $(PREFIX)/super_prove/bin/$${tool}.sh "$$@"' >> $@
@@ -449,13 +449,15 @@ $(PREFIX)/bin/iverilog: iverilog/iverilog
 # don't have the full path when we decompress the file, just the fosshdl folder
 # Of course this would be messy if you are installing to a folder where you
 # already have binaries, such as /usr/local/
-blob: $(install-targets)
+blob: fosshdl.tar.gz
+
+fosshdl.tar.gz: $(install-targets)
 	tar czvf fosshdl.tar.gz -C $(PREFIX)/.. $(PREFIX)/..
 
 # Make a docker image with the software
 # Since this depends on the blob, the previous considerations apply also to
 # this step
-dockerimage: blob
+dockerimage: fosshdl.tar.gz
 	docker build -t fosshdl .
 
 # Clean
