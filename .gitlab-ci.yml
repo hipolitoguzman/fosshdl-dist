@@ -28,18 +28,22 @@ build-software:
 # the image so it can be pushed to gitlab's container registry
 dockerimages:
   stage: dockerize
-  image: ubuntu:20.04
+  image: docker:20.10.7
   timeout: 1 hour
   dependencies:
     - build-software
   script:
-    - DEBIAN_FRONTEND=noninteractive apt update
-    - DEBIAN_FRONTEND=noninteractive apt install -y make tar docker.io
-    - cat ~/.docker/config.json
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+         tag=""
+         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+       else
+         tag=":$CI_COMMIT_REF_SLUG"
+         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+       fi
     - docker login \
         -u "$CI_REGISTRY_USER" \
         -p "$CI_REGISTRY_PASSWORD" \
         $CI_REGISTRY
-    - docker build -t fosshdl:latest .
-    - docker tag fosshdl:latest registry.gitlab.com/hgpub/fosshdl-dist/fosshdl:latest
-    - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl:latest
+    - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+    - docker push "$CI_REGISTRY_IMAGE${tag}"
