@@ -25,7 +25,8 @@ build-software:
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
 # because that would rebuild everything (because of dependencies in the
-# Makefile), so we will just invoke docker
+# Makefile), so we will just invoke docker. We also want to tag specifically
+# the image so it can be pushed to gitlab's container registry
 dockerimages:
   stage: dockerize
   image: ubuntu:20.04
@@ -36,5 +37,5 @@ dockerimages:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y make tar docker.io
     - cat ~/.docker/config.json
-    - docker build -t fosshdl .
+    - docker build -t registry.gitlab.com/hgpub/fosshdl-dist .
     - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
