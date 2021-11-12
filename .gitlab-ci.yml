@@ -17,7 +17,6 @@ build-software:
     - make echo-targets
     - make install
     - make blob
-    - cat ~/.docker/config.json
   artifacts:
     paths:
       - fosshdl.tar.gz
@@ -37,5 +36,6 @@ dockerimages:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y make tar docker.io
     - cat ~/.docker/config.json
-    - docker build -t registry.gitlab.com/hgpub/fosshdl-dist .
-    - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
+    - docker build -t fosshdl:latest .
+    - docker tag fosshdl:latest registry.gitlab.com/hgpub/fosshdl-dist/fosshdl:latest
+    - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl:latest
