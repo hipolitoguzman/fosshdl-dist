@@ -327,22 +327,6 @@ $(PREFIX)/bin/yosys: yosys/yosys
 	make -C yosys install PREFIX=$(PREFIX)
 endif
 
-
-# Untar and install symbiotic suite, if using the paid yosys version
-
-symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION).tar.gz
-	tar xzf symbiotic-$(SYMBIOTIC_VERSION).tar.gz
-
-ifeq ($(USE_SYMBIOTIC),yes)
-$(PREFIX)/bin/yosys: | symbiotic-$(SYMBIOTIC_VERSION)/bin/yosys
-	$(SUDO) mkdir -p $(PREFIX)
-	$(SUDO) cp -Rv symbiotic-$(SYMBIOTIC_VERSION)/* $(PREFIX)
-endif
-
-$(PREFIX)/symbiotic.lic: symbiotic.lic
-	$(SUDO) mkdir -p $(PREFIX)
-	$(SUDO) cp symbiotic.lic $(PREFIX)/symbiotic.lic
-
 # Compile and install symbiyosys. This is all done in one step since it is all
 # grouped into a single step in symbiosys' Makefile
 $(PREFIX)/bin/sby: symbiyosys
@@ -366,7 +350,7 @@ $(PREFIX)/bin/z3: z3
 	make && \
 	$(SUDO) make install
 
-$(PREFIX)/super_prove/bin/super_prove.sh: super-prove-build
+$(PREFIX)/super_prove/bin/super_prove.sh: | super-prove-build
 	cd super-prove-build && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) -G Ninja .. && \
 	ninja && \

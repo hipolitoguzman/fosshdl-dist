@@ -22,7 +22,10 @@ build-software:
     paths:
       - fosshdl.tar.gz
 
-# We should make the docker image in a separate stage
+# Make the docker image in a separate stage
+# Since it's in a separate stage we can't use the "make dockerfile" target
+# because that would rebuild everything (because of dependencies in the
+# Makefile), so we will just invoke docker
 dockerimages:
   stage: dockerize
   image: ubuntu:20.04
@@ -33,5 +36,5 @@ dockerimages:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y make tar docker.io
     - cat ~/.docker/config.json
-    - make dockerimage
+    - docker build -t fosshdl .
     - docker push registry.gitlab.com/hgpub/fosshdl-dist/fosshdl
