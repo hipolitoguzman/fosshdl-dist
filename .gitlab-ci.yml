@@ -9,7 +9,7 @@ build-software:
   timeout: 6 hours
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
-    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar docker.io
+    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
