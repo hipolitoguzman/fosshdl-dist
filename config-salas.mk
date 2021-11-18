@@ -24,8 +24,8 @@ selected += icestorm
 #selected += icestudio
 #selected += cocotb
 #selected += vunit
-#selected += verilator
-#selected += iverilog
+selected += verilator
+selected += iverilog
 
 # Latest UVVM version that compiles with GHDL
 UVVM_VERSION = v2019.09.02
