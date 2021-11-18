@@ -53,5 +53,8 @@ VOLUME [ "/home/salas/workdir" ]
 # flag
 
 # Default command is an echo inside a bash shell
-CMD [ "/bin/bash", "-c", "echo \"Hello! I'm running on '$(hostname)'!\"" ]
+CMD [ "/bin/bash", "-c", "echo \"Hello! I'm running on '$(hostname)'!\" && \
+  echo \"Free and Open Source Software to work with VHDL and FPGAs\" && \
+  echo \"To launch this image interactively, do: \" && \
+  echo '  docker run --rm -it --volume \"$(pwd):/home/salas/workdir\" --user \"$(id -u)\":\"$(id -g)\" <imagename> bash '" ]
 
