@@ -69,15 +69,15 @@ ifneq (,$(findstring iverilog, $(selected)))
 	install-targets += $(PREFIX)/bin/iverilog
 endif
 
-ifneq (,$(findstring cocotb, $(selected)))
-	repos += cocotb
-	install-targets += $(PREFIX)/bin/cocotb-config
-endif
+#ifneq (,$(findstring cocotb, $(selected)))
+#	repos += cocotb
+#	install-targets += $(PREFIX)/bin/cocotb-config
+#endif
 
-ifneq (,$(findstring vunit, $(selected)))
-	repos += vunit
-	install-targets += $(PREFIX)/lib/python3.6/site-packages/vunit/vunit_cli.py
-endif
+#ifneq (,$(findstring vunit, $(selected)))
+#	repos += vunit
+#	install-targets += $(PREFIX)/lib/python3.6/site-packages/vunit/vunit_cli.py
+#endif
 
 ifneq (,$(findstring arachne-pnr, $(selected)))
 	repos += arachne-pnr
@@ -403,12 +403,12 @@ $(PREFIX)/osvvm_bin: osvvm_bin
 
 
 # Install cocotb
-$(PREFIX)/bin/cocotb-config: cocotb
-	$(SUDO) pip3 install --prefix $(PREFIX) ./cocotb
+#$(PREFIX)/bin/cocotb-config: cocotb
+#	$(SUDO) pip3 install --prefix $(PREFIX) ./cocotb
 
 # Install vunit
-$(PREFIX)/lib/python3.6/site-packages/vunit/vunit_cli.py: vunit
-	$(SUDO) pip3 install --prefix $(PREFIX) ./vunit
+#$(PREFIX)/lib/python3.6/site-packages/vunit/vunit_cli.py: vunit
+#	$(SUDO) pip3 install --prefix $(PREFIX) ./vunit
 
 # Compile and install verilator
 verilator/verilator: verilator

@@ -21,16 +21,14 @@ selected += ghdl-yosys-plugin
 #selected += arachne-pnr
 selected += nextpnr
 selected += icestorm
-#selected += icestudio
-#selected += cocotb
-#selected += vunit
 selected += verilator
 selected += iverilog
 
 # Latest UVVM version that compiles with GHDL
 UVVM_VERSION = v2019.09.02
 
-# Unsupported, but planned:
-#selected += migen
-#selected += fusesoc
-#selected += theroshdl 
+# Cocotb, vunit and amaranth-hdl must be installed using pip, so they will be
+# installed in the Dockerfile instead of compiled
+#selected += cocotb
+#selected += vunit
+#selected += amaranth-hdl

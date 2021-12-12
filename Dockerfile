@@ -12,6 +12,7 @@ RUN set -ex ; \
   apt-get -y update ; \
   # Install software we need
   apt install -y git make tar gcc lcov gcovr gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
+  apt install g++ python3 python3-dev python3-pip; \
   # Apt cleanup
   apt-get -y clean ; \
   apt-get -y autoclean ; \
@@ -43,6 +44,14 @@ RUN \
   chown salas: /home/salas/.bashrc ; \
   chown -R salas: /home/salas/fosshdl ; \
   rm /home/salas/fosshdl.tar.gz ;
+
+# Install tools available in python-pip
+# TODO: maybe uninstall python3-pip in this step? But probably we would need to
+# do an apt update before
+RUN \
+  pip3 install vunit-hdl ; \
+  pip3 install --upgrade amaranth[builtin-yosys] ; \
+  pip3 install cocotb ;
 
 # In docker, we store persistent data in volumes
 VOLUME [ "/home/salas/workdir" ]
