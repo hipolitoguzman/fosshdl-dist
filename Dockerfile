@@ -12,7 +12,7 @@ RUN set -ex ; \
   apt-get -y update ; \
   # Install software we need
   apt install -y git make tar gcc lcov gcovr gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
-  apt install g++ python3 python3-dev python3-pip; \
+  apt install -y g++ python3 python3-dev python3-pip; \
   # Apt cleanup
   apt-get -y clean ; \
   apt-get -y autoclean ; \
