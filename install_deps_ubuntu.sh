@@ -1,5 +1,5 @@
 #!/bin/sh
-COMMON_SW="git lcov gtkwave octave"
+COMMON_SW="git lcov gcovr gtkwave octave"
 COMMON_DEPS="make build-essential g++"
 YOSYS_DEPS="tcl tcl-dev clang"
 SBY_DEPS="libgmp-dev python ninja-build python-dev python3-dev curl"
