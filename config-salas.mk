@@ -24,6 +24,10 @@ selected += icestorm
 selected += verilator
 selected += iverilog
 
+# Latest GHDL version that generates code coverage with the GCC BACKEND (that I
+# have tested)
+GHDL_VERSION = v1.0.0-r144-g68a7f85c
+
 # Latest UVVM version that compiles with GHDL
 UVVM_VERSION = v2019.09.02
 

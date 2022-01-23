@@ -177,6 +177,7 @@ boolector:
 
 ghdl:
 	git clone https://github.com/ghdl/ghdl
+	cd ghdl && git checkout $(GHDL_VERSION)
 
 ghdl-yosys-plugin:
 	git clone https://github.com/ghdl/ghdl-yosys-plugin
