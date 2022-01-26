@@ -11,7 +11,7 @@ RUN set -ex ; \
   # Mandatory update
   apt-get -y update ; \
   # Install software we need
-  apt install -y git make tar gcc lcov gcovr gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
+  apt install -y git make tar gcc lcov gcovr octave gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
   apt install -y g++ python3 python3-dev python3-pip; \
   # Apt cleanup
   apt-get -y clean ; \
@@ -50,6 +50,9 @@ RUN \
 # do an apt update before
 RUN \
   pip3 install vunit-hdl ; \
+  pip3 install matplotlib ; \
+  pip3 install numpy ; \
+  pip3 install oct2py ; \
   pip3 install --upgrade amaranth[builtin-yosys] ; \
   pip3 install cocotb ;
 
