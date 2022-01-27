@@ -33,7 +33,7 @@ dockerimages:
 #  dependencies:
 #    - build-software
   script:
-    - wget 192.168.20.240/sw/fosshdl-20211028.tar.gz
+    - wget heimdall.us.es/sw/fosshdl-20211028.tar.gz
     - mv fosshdl-20211028.tar.gz fosshdl.tar.gz
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
