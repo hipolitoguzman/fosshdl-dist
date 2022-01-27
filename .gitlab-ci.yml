@@ -33,6 +33,9 @@ dockerimages:
 #  dependencies:
 #    - build-software
   script:
+    - echo "use_proxy=yes" >> ~/.wgetrc
+    - echo "http_proxy=proxy.int.local:3128" >> ~/.wgetrc
+    - echo "https_proxy=proxy.int.local:3128" >> ~/.wgetrc
     - wget heimdall.us.es/sw/fosshdl-20211028.tar.gz
     - mv fosshdl-20211028.tar.gz fosshdl.tar.gz
     - |
