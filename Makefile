@@ -181,6 +181,7 @@ ghdl:
 
 ghdl-yosys-plugin:
 	git clone https://github.com/ghdl/ghdl-yosys-plugin
+	cd ghdl-yosys-plugin && git checkout $(GHDLSYNTH_VERSION)
 
 uvvm:
 	git clone https://github.com/UVVM/UVVM uvvm --branch $(UVVM_VERSION)

@@ -28,6 +28,9 @@ selected += iverilog
 # have tested)
 GHDL_VERSION = v1.0.0-r144-g68a7f85c
 
+# Select ghdl-yosys-plugin version
+GHDLSYNTH_VERSION = 9e11f71e1d06f4cfac0b62d5dbe324fbcae6c44e
+
 # Latest UVVM version that compiles with GHDL
 UVVM_VERSION = v2019.09.02
 
