@@ -9,7 +9,14 @@ include config.mk
 
 # Select what to install depending on what was selected in config.mk
 
+# We need the .rc file that must be sourced before using the tools (we need
+# this since we provide a specific version of GCC for code coverage, which
+# will probably be different from the OS' GCC version)
 install-targets += $(PREFIX)/env.rc
+
+# Keep a copy of the config.mk in case we want to reproduce a specific
+# configuration that works
+install-targets += $(PREFIX)/config.mk
 
 ifneq (,$(findstring yosys, $(selected)))
 	repos += yosys
@@ -125,6 +132,10 @@ install: $(install-targets)
 $(PREFIX)/env.rc: env.rc
 	$(SUDO) mkdir -p $(PREFIX)
 	$(SUDO) cp env.rc $(PREFIX)/env.rc
+
+$(PREFIX)/config.mk: config.mk
+	$(SUDO) mkdir -p $(PREFIX)
+	$(SUDO) cp config.mk $(PREFIX)/config.mk
 
 # It seems that for env.rc we have to put ghdl's gcc before system gcc in order
 # for code coverage to work correcly, unless we use the exact system version.

@@ -28,7 +28,8 @@ selected += iverilog
 # have tested)
 GHDL_VERSION = v1.0.0-r144-g68a7f85c
 
-# Select ghdl-yosys-plugin version
+# Select ghdl-yosys-plugin version. This version cannot be much more advanced
+# in time than the ghdl version, since it uses symbols defined in ghdl
 GHDLSYNTH_VERSION = 9e11f71e1d06f4cfac0b62d5dbe324fbcae6c44e
 
 # Latest UVVM version that compiles with GHDL
