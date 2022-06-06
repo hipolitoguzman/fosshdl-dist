@@ -56,6 +56,15 @@ RUN \
   pip3 install --upgrade amaranth[builtin-yosys] ; \
   pip3 install cocotb ;
 
+# Solve weird issue which makes nextpnr not find libQt5Core sometimes
+#
+# As far as I know, this happens when running the docker image under specific host OSes
+#   - Debian 11: doesn't fail
+#   - Centos 8.5.2111: doesn't fail
+#   - Centos 7.9.2009 (Core): fails
+# https://stackoverflow.com/a/65564226
+RUN strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so.5   
+
 # In docker, we store persistent data in volumes
 VOLUME [ "/home/salas/workdir" ]
 
