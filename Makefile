@@ -248,13 +248,12 @@ ghdl/build/gcc-objs/gcc/ghdl: | ghdl gcc-$(GCC_VERSION)
 		--disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
 		--disable-libgomp --disable-libquadmath $(ENABLE_DEFAULT_PIE) \
 	        --enable-synth && \
-	make
+	make -j $(nproc)
 
 # GHDL must be installed to compile ghdllib
 ghdl/build/grt/libgrt.a: $(PREFIX)/bin/ghdl
 	cd ghdl/build && \
-	make ghdllib
-
+	make -j $(nproc) ghdllib
 # Install GHDL
 # Use this target to explicitly install ghdl before compiling ghdllib
 .PHONY: install-ghdl
@@ -282,7 +281,7 @@ gcc-$(GCC_VERSION).tar.gz:
 ghdl-yosys-plugin/ghdl.so: ghdl-yosys-plugin $(PREFIX)/bin/ghdl $(PREFIX)/bin/yosys $(PREFIX)/lib/ghdl/libgrt.a $(PREFIX)/env.rc
 	cd ghdl-yosys-plugin && \
 	. $(PREFIX)/env.rc && \
-	make
+	make -j $(nproc)
 
 $(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
 	cd ghdl-yosys-plugin && \
@@ -294,7 +293,7 @@ $(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
 nextpnr/nextpnr-ice40: $(PREFIX)/bin/icepack | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
 	cmake -DARCH=ice40 -DBUILD_GUI=ON -DICESTORM_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
-	make
+	make -j $(nproc)
 
 # I had to make a quick hack here and add the | because the installation seems
 # to make a floor() operation on the 'modified' date of the installed
@@ -307,7 +306,7 @@ $(PREFIX)/bin/nextpnr-ice40: | nextpnr/nextpnr-ice40
 # Compile and install arachne-pnr. Deprecated by nextpnr, so typically not used.
 
 arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack
-	make -C arachne-pnr PREFIX=$(PREFIX)
+	make -j $(nproc) -C arachne-pnr PREFIX=$(PREFIX)
 
 $(PREFIX)/bin/arachne-pnr: arachne-pnr/bin/arachne-pnr
 	make -C arachne-pnr install PREFIX=$(PREFIX)
@@ -316,7 +315,7 @@ $(PREFIX)/bin/arachne-pnr: arachne-pnr/bin/arachne-pnr
 # Compile and install icestorm
 
 icestorm/icepack/icepack: | icestorm
-	make -C icestorm
+	make -j $(nproc) -C icestorm
 
 $(PREFIX)/bin/icepack: icestorm/icepack/icepack
 	$(SUDO) make -C icestorm install PREFIX=$(PREFIX)
@@ -333,7 +332,7 @@ $(PREFIX)/bin/icestudio: $(PREFIX)/icestudio
 
 yosys/yosys: | yosys
 	make -C yosys config-clang
-	make -C yosys PREFIX=$(PREFIX)
+	make -j $(nproc) -C yosys PREFIX=$(PREFIX)
 
 ifneq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: yosys/yosys
@@ -343,7 +342,7 @@ endif
 # Compile and install symbiyosys. This is all done in one step since it is all
 # grouped into a single step in symbiosys' Makefile
 $(PREFIX)/bin/sby: symbiyosys
-	$(SUDO) make -C symbiyosys PREFIX=$(PREFIX) install
+	$(SUDO) make -j $(nproc) -C symbiyosys PREFIX=$(PREFIX) install
 
 # Compile and install the solvers that SymbiYosys can use
 # Instructions came from here:
@@ -353,20 +352,20 @@ $(PREFIX)/bin/yices: yices2
 	cd yices2 && \
 	autoconf && \
 	./configure --prefix=$(PREFIX) && \
-	make && \
+	make -j $(nproc) && \
 	$(SUDO) make install
 
 $(PREFIX)/bin/z3: z3
 	cd z3 && \
 	python scripts/mk_make.py --prefix=$(PREFIX) && \
 	cd build && \
-	make && \
+	make -j $(nproc) && \
 	$(SUDO) make install
 
 $(PREFIX)/super_prove/bin/super_prove.sh: | super-prove-build
 	cd super-prove-build && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) -G Ninja .. && \
-	ninja && \
+	ninja -j $(nproc) && \
 	ninja package && \
 	cp super_prove-*-Release.tar.gz super_prove.tar.gz && \
 	$(SUDO) tar -C $(PREFIX) -x --file super_prove.tar.gz
@@ -380,7 +379,7 @@ $(PREFIX)/bin/suprove: $(PREFIX)/super_prove/bin/super_prove.sh
 $(PREFIX)/bin/avy: extavy
 	cd extavy && mkdir -p build && cd build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) .. && \
-	make && \
+	make -j $(nproc) && \
 	pwd && \
 	$(SUDO) cp avy/src/avy $(PREFIX)/bin && \
 	$(SUDO) cp avy/src/avybmc $(PREFIX)/bin
@@ -390,7 +389,7 @@ $(PREFIX)/bin/boolector: boolector
 	./contrib/setup-btor2tools.sh && \
 	./contrib/setup-lingeling.sh && \
 	./configure.sh --prefix $(PREFIX) && \
-	make -C build && \
+	make -j $(nproc) -C build && \
 	$(SUDO) cp build/bin/boolector $(PREFIX)/bin/ && \
 	$(SUDO) cp build/bin/btor* $(PREFIX)/bin/ && \
 	$(SUDO) cp deps/btor2tools/bin/btorsim $(PREFIX)/bin/
@@ -427,7 +426,7 @@ $(PREFIX)/osvvm_bin: osvvm_bin
 verilator/verilator: verilator
 	cd verilator && autoconf
 	cd verilator && ./configure --prefix=$(PREFIX)
-	cd verilator && make
+	cd verilator && make -j $(nproc)
 
 $(PREFIX)/bin/verilator: verilator/verilator
 	cd verilator && $(SUDO) make install
@@ -436,7 +435,7 @@ $(PREFIX)/bin/verilator: verilator/verilator
 iverilog/iverilog: iverilog
 	cd iverilog && sh autoconf.sh
 	cd iverilog && ./configure --prefix=$(PREFIX)
-	cd iverilog && make
+	cd iverilog && make -j $(nproc)
 
 $(PREFIX)/bin/iverilog: iverilog/iverilog
 	cd iverilog && $(SUDO) make install
