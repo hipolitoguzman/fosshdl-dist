@@ -21,8 +21,8 @@ selected += ghdl-yosys-plugin
 #selected += arachne-pnr
 selected += nextpnr
 selected += icestorm
-selected += verilator
-selected += iverilog
+#selected += verilator
+#selected += iverilog
 
 # Latest GHDL version that generates code coverage with the GCC BACKEND (that I
 # have tested)
