@@ -6,6 +6,10 @@ PREFIX = /home/salas/fosshdl
 # and binaries won't be installed by root
 #SUDO = sudo
 
+# By default, use all available processors to compile. Change NPROC to a fixed
+# number if you want to use less processors
+NPROC := $(shell nproc)
+
 # Use a GCC version supported by GHDL (supported versions are listed on
 # https://ghdl.readthedocs.io/en/latest/building/gcc/index.html)
 # Keep in mind that not all gcc versions can generate code coverage with GHDL
