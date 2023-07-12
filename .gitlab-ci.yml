@@ -39,7 +39,7 @@ build-software-hgm:
     - mv fosshdl.tar.gz fosshdl-hgm.tar.gz
   artifacts:
     paths:
-      - fosshdl.tar.gz
+      - fosshdl-hgm.tar.gz
 
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
