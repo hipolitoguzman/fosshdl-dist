@@ -2,8 +2,8 @@ stages:
   - build
   - dockerize
 
-# Compile the software and make a tarball
-build-software:
+# Compile the software and make a tarball, for the 'salas' user
+build-software-salas:
   stage: build
   image: ubuntu:22.04
   timeout: 6 hours
@@ -21,6 +21,26 @@ build-software:
     paths:
       - fosshdl.tar.gz
 
+# Compile the software and make a tarball, for my local config
+build-software-hgm:
+  stage: build
+  image: ubuntu:22.04
+  timeout: 6 hours
+  script:
+    - DEBIAN_FRONTEND=noninteractive apt update
+    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
+    - pwd
+    - ls
+    - sh ./install_deps_ubuntu.sh
+    - cp config-hgm.mk config.mk
+    - make echo-targets
+    - make install
+    - make blob
+    - mv fosshdl.tar.gz fosshdl-hgm.tar.gz
+  artifacts:
+    paths:
+      - fosshdl.tar.gz
+
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
 # because that would rebuild everything (because of dependencies in the
@@ -31,7 +51,7 @@ dockerimages:
   image: docker:20.10.7
   timeout: 1 hour
   dependencies:
-    - build-software
+    - build-software-salas
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
