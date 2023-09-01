@@ -1,5 +1,5 @@
 # Base image to be used
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Metadata for this image
 LABEL \
