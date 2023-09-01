@@ -141,10 +141,16 @@ $(PREFIX)/config.mk: config.mk
 # for code coverage to work correcly, unless we use the exact system version.
 # But typically we have to use a different one because gcc 9 seems to break
 # ghdl's code coverage
+# Also, make sure we use *our* gcc for linking and not the system's cc. We
+# achieve this by setting CC to gcc, so our gcc is used instead of the system's
+# cc. See https://github.com/ghdl/docker/issues/42 and
+# https://github.com/ghdl/docker/commit/f935a57fd7c9688f982da113665d797bca15877a
+# for more information
 env.rc:
 	echo 'export PATH=$(PREFIX)/bin:$$PATH' >> $@
 	echo 'export VUNIT_SIMULATOR=ghdl' >> $@
 	echo 'export GHDL_PLUGIN_MODULE=ghdl' >> $@
+	echo 'export CC=gcc' >> $@
 
 # Check selected tools
 echo-targets:
