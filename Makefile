@@ -18,6 +18,10 @@ install-targets += $(PREFIX)/env.rc
 # configuration that works
 install-targets += $(PREFIX)/config.mk
 
+# Keep a  with all commits of all the software tools so different builds
+# can be reproduced, even those who use the latest main/master
+install-targets += $(PREFIX)/versions.log
+
 ifneq (,$(findstring yosys, $(selected)))
 	repos += yosys
 	binaries += yosys/yosys
@@ -137,13 +141,18 @@ $(PREFIX)/config.mk: config.mk
 	$(SUDO) mkdir -p $(PREFIX)
 	$(SUDO) cp config.mk $(PREFIX)/config.mk
 
+$(PREFIX)/versions.log: versions.log
+	$(SUDO) mkdir -p $(PREFIX)
+	$(SUDO) cp versions.log $(PREFIX)/versions.log
+
 # It seems that for env.rc we have to put ghdl's gcc before system gcc in order
 # for code coverage to work correcly, unless we use the exact system version.
 # But typically we have to use a different one because gcc 9 seems to break
 # ghdl's code coverage
-# Also, make sure we use *our* gcc for linking and not the system's cc. We
-# achieve this by setting CC to gcc, so our gcc is used instead of the system's
-# cc. See https://github.com/ghdl/docker/issues/42 and
+# Also, to be sure code coverage with gcc will work, make sure we use *our* gcc
+# for linking and not the system's cc. We achieve this by setting CC to gcc, so
+# our gcc is used instead of the system's cc. See
+# https://github.com/ghdl/docker/issues/42 and
 # https://github.com/ghdl/docker/commit/f935a57fd7c9688f982da113665d797bca15877a
 # for more information
 env.rc:
@@ -151,6 +160,11 @@ env.rc:
 	echo 'export VUNIT_SIMULATOR=ghdl' >> $@
 	echo 'export GHDL_PLUGIN_MODULE=ghdl' >> $@
 	echo 'export CC=gcc' >> $@
+
+# Create a file with all commits of all the software tools so different builds
+# can be reproduced
+versions.log: $(repos)
+	for i in ghdl yosys icestorm nextpnr; do echo -n $$i: ; cd $$i; git rev-parse HEAD ; cd ..; done > versions.log
 
 # Check selected tools
 echo-targets:

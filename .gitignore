@@ -1,4 +1,6 @@
 env.rc
+versions.log
+config.mk
 fosshdl.tar.gz
 yosys
 symbiyosys
