@@ -15,7 +15,7 @@ NPROC := $(shell nproc)
 # Keep in mind that not all gcc versions can generate code coverage with GHDL
 # It seems prudent to use one of the versions that the official ghdl repo uses
 # in its github actions, such as 9.3.0 or 12.1.0
-GCC_VERSION = 9.3.0
+GCC_VERSION = 12.1.0
 
 # List of software to compile and install. Comment any one you don't want.
 selected += yosys
@@ -32,11 +32,11 @@ selected += icestorm
 
 # Pin GHDL version (typically to the latest one in which our designs work and
 # where we have no troubles generating code coverage)
-GHDL_VERSION = v3.0.0
+GHDL_VERSION = master
 
 # Select ghdl-yosys-plugin version. This version cannot be much more advanced
 # in time than the ghdl version, since it uses symbols defined in ghdl
-GHDLSYNTH_VERSION = 5b64ccfdeee6c75f70487c1ea153ec3e1fb26cd1
+GHDLSYNTH_VERSION = master
 
 # Latest UVVM version that compiles with GHDL
 #UVVM_VERSION = v2019.09.02
