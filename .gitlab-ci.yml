@@ -13,7 +13,13 @@ build-software-salas:
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
-    - cp config-salas.mk config.mk
+    - echo "$IS_WEEKLY:" $IS_WEEKLY
+    - |
+      if [[ "$IS_WEEKLY" = "true" ]] then
+        cp config-weekly-salas.mk config.mk
+      else
+        cp config-salas.mk config.mk
+      fi
     - make echo-targets
     - make install
     - make blob
@@ -32,7 +38,13 @@ build-software-hgm:
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
-    - cp config-hgm.mk config.mk
+    - echo "$IS_WEEKLY:" $IS_WEEKLY
+    - |
+      if [[ "$IS_WEEKLY" = "true" ]] then
+        cp config-weekly-hgm.mk config.mk
+      else
+        cp config-hgm.mk config.mk
+      fi
     - make echo-targets
     - make install
     - make blob
@@ -46,6 +58,9 @@ build-software-hgm:
 # because that would rebuild everything (because of dependencies in the
 # Makefile), so we will just invoke docker. We also want to tag specifically
 # the image so it can be pushed to gitlab's container registry
+#
+# The image has the same tag as its branch unless we are in the weekly build:
+# in that case it is tagged 'weekly', but it will come from the 'master' branch
 dockerimages:
   stage: dockerize
   image: docker:20.10.7
@@ -55,17 +70,21 @@ dockerimages:
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-         tag=""
-         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
-       else
-         tag=":$CI_COMMIT_REF_SLUG"
-         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
-       fi
+        tag=""
+        echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+      else
+        tag=":$CI_COMMIT_REF_SLUG"
+        echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+      fi
+    - |
+      if [[ "$IS_WEEKLY" == "true" ]]; then
+        tag=":weekly"
+        echo "Hmm, we are in the weekly build: tag = $tag"
+      fi
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - |
       docker login \
         -u "$CI_REGISTRY_USER" \
         -p "$CI_REGISTRY_PASSWORD" \
         $CI_REGISTRY
-
     - docker push "$CI_REGISTRY_IMAGE${tag}"
