@@ -13,9 +13,9 @@ build-software-salas:
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
-    - echo "$IS_WEEKLY:" $IS_WEEKLY
+    - echo "IS_WEEKLY:" $IS_WEEKLY
     - |
-      if [[ "$IS_WEEKLY" = "true" ]] then
+      if [[ "$IS_WEEKLY" == "true" ]]; then
         cp config-weekly-salas.mk config.mk
       else
         cp config-salas.mk config.mk
@@ -38,9 +38,9 @@ build-software-hgm:
     - pwd
     - ls
     - sh ./install_deps_ubuntu.sh
-    - echo "$IS_WEEKLY:" $IS_WEEKLY
+    - echo "IS_WEEKLY:" $IS_WEEKLY
     - |
-      if [[ "$IS_WEEKLY" = "true" ]] then
+      if [[ "$IS_WEEKLY" == "true" ]]; then
         cp config-weekly-hgm.mk config.mk
       else
         cp config-hgm.mk config.mk
