@@ -412,7 +412,7 @@ $(PREFIX)/bin/boolector: boolector
 	make -j $(NPROC) -l $(NPROC) -C build && \
 	$(SUDO) cp build/bin/boolector $(PREFIX)/bin/ && \
 	$(SUDO) cp build/bin/btor* $(PREFIX)/bin/ && \
-	$(SUDO) cp deps/btor2tools/bin/btorsim $(PREFIX)/bin/
+	$(SUDO) cp deps/btor2tools/build/bin/btorsim $(PREFIX)/bin/
 
 # Compile and install uvvm
 # This has to be done using GHDL so $(PREFIX)/bin should be in the user's $(PATH)
