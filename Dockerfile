@@ -45,10 +45,11 @@ RUN \
   chown -R salas: /home/salas/fosshdl ; \
   rm /home/salas/fosshdl.tar.gz ;
 
-# Install tools available in python-pip
+# Install tools available in python-pip, and also a yosys dependence (Click)
 # TODO: maybe uninstall python3-pip in this step? But probably we would need to
 # do an apt update before
 RUN \
+  pip3 install Click ; \
   pip3 install vunit-hdl ; \
   pip3 install matplotlib ; \
   pip3 install numpy ; \
