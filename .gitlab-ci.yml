@@ -2,56 +2,35 @@ stages:
   - build
   - dockerize
 
-# Compile the software and make a tarball, for the 'salas' user
-build-software-salas:
+# Build the software
+build-software:
   stage: build
-  image: ubuntu:22.04
+  image: $IMAGE
   timeout: 6 hours
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - pwd
-    - ls
-    - sh ./install_deps_ubuntu.sh
-    - echo "IS_WEEKLY:" $IS_WEEKLY
+    - sh ./install_deps_$IMAGE.sh
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
-        cp config-weekly-salas.mk config.mk
+        cp config-weekly-$USER.mk config.mk
       else
-        cp config-salas.mk config.mk
+        cp config-$USER.mk config.mk
       fi
-    - make echo-targets
     - make install
     - make blob
-  artifacts:
-    paths:
-      - fosshdl.tar.gz
-
-# Compile the software and make a tarball, for my local config
-build-software-hgm:
-  stage: build
-  image: ubuntu:22.04
-  timeout: 6 hours
-  script:
-    - DEBIAN_FRONTEND=noninteractive apt update
-    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - pwd
-    - ls
-    - sh ./install_deps_ubuntu.sh
+    - make echo-targets
     - echo "IS_WEEKLY:" $IS_WEEKLY
-    - |
-      if [[ "$IS_WEEKLY" == "true" ]]; then
-        cp config-weekly-hgm.mk config.mk
-      else
-        cp config-hgm.mk config.mk
-      fi
-    - make echo-targets
-    - make install
-    - make blob
-    - mv fosshdl.tar.gz fosshdl-hgm.tar.gz
+    - mv fosshdl.tar.gz fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
+  parallel:
+    matrix:
+      - USER: [salas]
+        IMAGE: [ubuntu:18.04, ubuntu:22.04]
+      - USER: [hgm]
+        IMAGE: [ubuntu:22.04, debian:11]
   artifacts:
     paths:
-      - fosshdl-hgm.tar.gz
+      - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
 
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
@@ -65,8 +44,12 @@ dockerimages:
   stage: dockerize
   image: docker:20.10.7
   timeout: 1 hour
-  dependencies:
-    - build-software-salas
+  # If we add more than one possibility in the parallel:matrix, then we will
+  # have to include that information into the tag
+  parallel:
+    matrix:
+      - USER: [salas]
+        IMAGE: [ubuntu:22.04]
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
@@ -81,6 +64,7 @@ dockerimages:
         tag=":weekly"
         echo "Hmm, we are in the weekly build: tag = $tag"
       fi
+    - mv fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz fosshdl.tar.gz
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - |
       docker login \

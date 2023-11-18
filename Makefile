@@ -468,7 +468,7 @@ $(PREFIX)/bin/iverilog: iverilog/iverilog
 blob: fosshdl.tar.gz
 
 fosshdl.tar.gz: $(install-targets)
-	tar czvf fosshdl.tar.gz -C $(PREFIX)/.. $(PREFIX)/..
+	tar czf fosshdl.tar.gz -C $(PREFIX)/.. $(PREFIX)/..
 
 # Make a docker image with the software
 # Since this depends on the blob, the previous considerations apply also to
