@@ -25,7 +25,7 @@ build-software:
   parallel:
     matrix:
       - USER: [salas]
-        IMAGE: [ubuntu:18.04, ubuntu:22.04]
+        IMAGE: [ubuntu:22.04]
       - USER: [hgm]
         IMAGE: [ubuntu:22.04, debian:11]
   artifacts:
