@@ -42,7 +42,7 @@ build-software:
 # in that case it is tagged 'weekly', but it will come from the 'master' branch
 dockerimages:
   stage: dockerize
-  image: docker:20.10.7
+  image: docker:25
   timeout: 2 hour
   # If we add more than one possibility in the parallel:matrix, then we will
   # have to include that information into the tag
