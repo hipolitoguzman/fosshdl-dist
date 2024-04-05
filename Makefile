@@ -377,7 +377,7 @@ $(PREFIX)/bin/yices: yices2
 
 $(PREFIX)/bin/z3: z3
 	cd z3 && \
-	python2 scripts/mk_make.py --prefix=$(PREFIX) && \
+	python3 scripts/mk_make.py --prefix=$(PREFIX) && \
 	cd build && \
 	make -j $(NPROC) -l $(NPROC) && \
 	$(SUDO) make install
