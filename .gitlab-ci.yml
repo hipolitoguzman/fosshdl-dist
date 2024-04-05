@@ -27,7 +27,7 @@ build-software:
       - USER: [salas]
         IMAGE: [ubuntu:22.04]
       - USER: [hgm]
-        IMAGE: [ubuntu:22.04, debian:11]
+        IMAGE: [ubuntu:22.04, debian:11, debian:12]
   artifacts:
     paths:
       - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
