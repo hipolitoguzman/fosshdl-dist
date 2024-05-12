@@ -176,7 +176,7 @@ echo-targets:
 #Get code from repositories
 
 yosys:
-	git clone https://github.com/YosysHQ/yosys
+	git clone --recursive https://github.com/YosysHQ/yosys
 
 symbiyosys:
 	git clone https://github.com/YosysHQ/SymbiYosys symbiyosys
