@@ -232,6 +232,7 @@ arachne-pnr:
 
 nextpnr:
 	git clone --recursive https://github.com/YosysHQ/nextpnr
+	cd nextpnr && git checkout $(NEXTPNR_VERSION)
 
 icestorm:
 	git clone https://github.com/cliffordwolf/icestorm
