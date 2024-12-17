@@ -177,6 +177,7 @@ echo-targets:
 
 yosys:
 	git clone --recursive https://github.com/YosysHQ/yosys
+	cd yosys && git checkout $(YOSYS_VERSION)
 
 symbiyosys:
 	git clone https://github.com/YosysHQ/SymbiYosys symbiyosys
