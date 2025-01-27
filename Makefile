@@ -164,7 +164,7 @@ env.rc:
 # Create a file with all commits of all the software tools so different builds
 # can be reproduced
 versions.log: $(repos)
-	for i in ghdl yosys icestorm nextpnr; do echo -n $$i: ; cd $$i; git rev-parse HEAD ; cd ..; done > versions.log
+	for i in $(repos); do echo -n $$i: ; cd $$i; git rev-parse HEAD ; cd ..; done > versions.log
 
 # Check selected tools
 echo-targets:
@@ -314,7 +314,9 @@ $(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
 
 nextpnr/nextpnr-ice40: $(PREFIX)/bin/icepack | nextpnr $(PREFIX)/bin/icepack
 	cd nextpnr && \
-	cmake -DARCH=ice40 -DBUILD_GUI=ON -DICESTORM_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
+	mkdir -p build && \
+	cd build && \
+	cmake .. -DARCH=ice40 -DBUILD_GUI=ON -DICESTORM_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_PREFIX=$(PREFIX) && \
 	make -j $(NPROC) -l $(NPROC)
 
 # I had to make a quick hack here and add the | because the installation seems
