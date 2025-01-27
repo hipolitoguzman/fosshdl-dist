@@ -17,7 +17,7 @@ build-software:
       else
         cp config-$USER.mk config.mk
       fi
-    - make install > fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT_build.log
+    - make install > fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log 2>&1
     - make blob
     - make echo-targets
     - echo "IS_WEEKLY:" $IS_WEEKLY
@@ -31,7 +31,7 @@ build-software:
   artifacts:
     when: always
     paths:
-      - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT_build.log
+      - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
       - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
 
 # Make the docker image in a separate stage
