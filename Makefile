@@ -323,7 +323,7 @@ nextpnr/nextpnr-ice40: $(PREFIX)/bin/icepack | nextpnr $(PREFIX)/bin/icepack
 # to make a floor() operation on the 'modified' date of the installed
 # executable, causing the target to be be always outdated 
 $(PREFIX)/bin/nextpnr-ice40: | nextpnr/nextpnr-ice40
-	cd nextpnr && \
+	cd nextpnr/build && \
 	$(SUDO) make install
 
 
