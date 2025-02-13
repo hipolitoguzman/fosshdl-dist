@@ -19,11 +19,11 @@ build-software: &build_software
       else
         cp config-$USER.mk config.mk
       fi
-    - make install > fosshdl-$CI_JOB_NAME-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log 2>&1
+    - make install > fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log 2>&1
     - make blob
     - make echo-targets
     - echo "IS_WEEKLY:" $IS_WEEKLY
-    - mv fosshdl.tar.gz fosshdl-$CI_JOB_NAME-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
+    - mv fosshdl.tar.gz fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
   parallel:
     matrix:
       - USER: [salas]
@@ -33,8 +33,8 @@ build-software: &build_software
   artifacts:
     when: always
     paths:
-      - fosshdl-$CI_JOB_NAME-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
-      - fosshdl-$CI_JOB_NAME-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
+      - fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
+      - fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
 
 build-software-weekly:
   <<: *build_software
