@@ -7,23 +7,24 @@ build-software: &build_software
   stage: build
   image: $IMAGE
   timeout: 6 hours
-  rules:
-    - if: $IS_WEEKLY != "true"
+  #rules:
+  #- if: $IS_WEEKLY != "true"
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - sh ./install_deps_$IMAGE.sh
+    - sh ./scripts/install_deps_common.sh
+    - sh ./scripts/install_deps_$IMAGE.sh
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
         cp config-weekly-$USER.mk config.mk
       else
         cp config-$USER.mk config.mk
       fi
-    - make install > fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log 2>&1
+    - make install > fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log 2>&1
     - make blob
     - make echo-targets
     - echo "IS_WEEKLY:" $IS_WEEKLY
-    - mv fosshdl.tar.gz fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
+    - mv fosshdl.tar.gz fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
   parallel:
     matrix:
       - USER: [salas]
@@ -33,20 +34,20 @@ build-software: &build_software
   artifacts:
     when: always
     paths:
-      - fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
-      - fosshdl-$CI_JOB_NAME_SLUG-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
+      - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
+      - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
 
-build-software-weekly:
-  <<: *build_software
-  image: $IMAGE
-  rules:
-    - if: $IS_WEEKLY == "true"
-  parallel:
-    matrix:
-      - USER: [salas]
-        IMAGE: [ubuntu:24.04]
-      - USER: [hgm]
-        IMAGE: [ubuntu:24.04, debian:11, debian:12]
+#build-software-weekly:
+#  <<: *build_software
+#  image: $IMAGE
+#  rules:
+#    - if: $IS_WEEKLY == "true"
+#  parallel:
+#    matrix:
+#      - USER: [salas]
+#        IMAGE: [ubuntu:24.04]
+#      - USER: [hgm]
+#        IMAGE: [ubuntu:24.04, debian:11, debian:12]
 
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
