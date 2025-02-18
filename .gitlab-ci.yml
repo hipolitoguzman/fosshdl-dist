@@ -30,7 +30,7 @@ build-software: &build_software
       - USER: [salas]
         IMAGE: [ubuntu:22.04, ubuntu:24.04]
       - USER: [hgm]
-        IMAGE: [ubuntu:22.04, ubuntu:24.04, debian:11, debian:12]
+        IMAGE: [ubuntu:22.04, ubuntu:24.04, debian:12]
   artifacts:
     when: always
     paths:
@@ -47,7 +47,7 @@ build-software: &build_software
 #      - USER: [salas]
 #        IMAGE: [ubuntu:24.04]
 #      - USER: [hgm]
-#        IMAGE: [ubuntu:24.04, debian:11, debian:12]
+#        IMAGE: [ubuntu:24.04, debian:12]
 
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
