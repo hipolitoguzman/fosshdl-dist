@@ -6,7 +6,7 @@ SBY_DEPS="libgmp-dev python ninja-build python-dev python3-dev curl"
 GHDL_DEPS="wget gnat texinfo zlib1g-dev"
 COCOTB_DEPS="python3-pip"
 ICESTORM_DEPS="libftdi-dev"
-NEXTPNR_DEPS="cmake clang-format qt5-default python3-dev libboost-all-dev libeigen3-dev"
+NEXTPNR_DEPS="clang-format qt5-default python3-dev libboost-all-dev libeigen3-dev"
 VERILATOR_DEPS="autoconf flex bison libfl2 libfl-dev"
 IVERILOG_DEPS="make g++ bison flex gperf libreadline-dev autoconf"
 
