@@ -1,5 +1,5 @@
 # Where to install
-PREFIX = /home/salas/fosshdl
+PREFIX = /home/salas/fosshdl-weekly
 
 # If your user has write permissions in the install location (such as when
 # installing in your $(HOME), you can comment the SUDO definition line below
