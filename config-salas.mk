@@ -27,8 +27,8 @@ selected += ghdl-yosys-plugin
 #selected += arachne-pnr
 selected += nextpnr
 selected += icestorm
-#selected += verilator
-#selected += iverilog
+selected += verilator
+selected += iverilog
 
 # Pin GHDL version (typically to the latest one in which our designs work and
 # where we have no troubles generating code coverage)
@@ -37,6 +37,11 @@ GHDL_VERSION = v3.0.0
 # Select ghdl-yosys-plugin version. This version cannot be much more advanced
 # in time than the ghdl version, since it uses symbols defined in ghdl
 GHDLSYNTH_VERSION = 5b64ccfdeee6c75f70487c1ea153ec3e1fb26cd1
+
+# Pin nextpnr version. As of end of 2024 / beginning of 2025, latest versions
+# require a version of cmake (3.25) that is not available in older distros
+# (debian 11, ubuntu 18 and ubuntu 22)
+NEXTPNR_VERSION = 
 
 # Latest UVVM version that compiles with GHDL
 #UVVM_VERSION = v2019.09.02
