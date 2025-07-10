@@ -27,8 +27,8 @@ selected += ghdl-yosys-plugin
 #selected += arachne-pnr
 selected += nextpnr
 selected += icestorm
-#selected += verilator
-#selected += iverilog
+selected += verilator
+selected += iverilog
 
 # Pin GHDL version (typically to the latest one in which our designs work and
 # where we have no troubles generating code coverage)
