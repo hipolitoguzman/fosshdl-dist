@@ -30,7 +30,7 @@ build-software: &build_software
       - USER: [salas]
         IMAGE: [ubuntu:22.04, ubuntu:24.04]
       - USER: [hgm]
-        IMAGE: [ubuntu:22.04, ubuntu:24.04, debian:12]
+        IMAGE: [ubuntu:22.04, ubuntu:24.04, debian:12, debian:13]
   artifacts:
     when: always
     paths:
