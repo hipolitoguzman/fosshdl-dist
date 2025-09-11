@@ -20,18 +20,21 @@ RUN set -ex ; \
   rm -rf /var/lib/apt/lists/* ;
 
   # Create default user and group
-RUN \
-  # Add default group
-  addgroup --gid 1000 "group"; \
-  # Add default user
-  adduser \
-    --home "/home/salas" \
-    --gecos "default user" \
-    --shell "/bin/bash" \
-    --uid 1000 \
-    --gid 1000 \
-    --disabled-password \
-    "salas" ;
+#RUN \
+#  # Add default group
+#  addgroup --gid 1000 "group"; \
+#  # Add default user
+#  adduser \
+#    --home "/home/salas" \
+#    --gecos "default user" \
+#    --shell "/bin/bash" \
+#    --uid 1000 \
+#    --gid 1000 \
+#    --disabled-password \
+#    "salas" ;
+
+# Since 23.04, Ubuntu has a default 'ubuntu' user, so no need to create it
+RUN usermod -l salas ubuntu
 
 # Copy the tarball with the software
 COPY fosshdl.tar.gz /home/salas/fosshdl.tar.gz
