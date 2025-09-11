@@ -66,7 +66,7 @@ dockerimages:
   parallel:
     matrix:
       - USER: [salas]
-        IMAGE: [ubuntu:22.04]
+        IMAGE: [ubuntu:24.04]
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
