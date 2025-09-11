@@ -12,7 +12,7 @@ RUN set -ex ; \
   apt-get -y update ; \
   # Install software we need
   apt install -y git make tar gcc lcov gcovr octave gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
-  apt install -y g++ python3 python3-dev python3-pip; \
+  apt install -y g++ python3 python3-dev python3-pip python3-venv; \
   # Apt cleanup
   apt-get -y clean ; \
   apt-get -y autoclean ; \
@@ -49,8 +49,17 @@ RUN \
   rm /home/salas/fosshdl.tar.gz ;
 
 # Install tools available in python-pip, and also a yosys dependence (Click)
-# TODO: maybe uninstall python3-pip in this step? But probably we would need to
-# do an apt update before
+# We need to install these tools inside a python venv (Virtual ENVironment)
+
+# Create the venv
+RUN python3 -m venv /home/salas/venv
+
+# Since venv/bin/activate doesn't work as expected in Dockerfiles, let's just
+# set the env vars manually
+ENV VIRTUAL_ENV=/home/salas/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Now the env is activated, so we can now install the tools we need
 RUN \
   pip3 install Click ; \
   pip3 install vunit-hdl ; \
