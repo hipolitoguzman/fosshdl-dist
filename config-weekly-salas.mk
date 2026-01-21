@@ -38,11 +38,13 @@ GHDL_VERSION = master
 # in time than the ghdl version, since it uses symbols defined in ghdl
 GHDLSYNTH_VERSION = master
 
-# Latest UVVM version that compiles with GHDL
-#UVVM_VERSION = v2019.09.02
+# Pin nextpnr version. As of end of 2024 / beginning of 2025, latest versions
+# require a version of cmake (3.25) that is not available in older distros
+# (debian 11, ubuntu 18 and ubuntu 22)
+NEXTPNR_VERSION =
 
-# Cocotb, vunit and amaranth-hdl must be installed using pip, so they will be
-# installed in the Dockerfile instead of compiled
-#selected += cocotb
-#selected += vunit
-#selected += amaranth-hdl
+# Pin versions of solvers used by SymbiYosys
+#
+# Latest z3 versions require format.h, which comes which gcc-13, which is not
+# avaiable in debian:12 and ubuntu:22.04
+Z3_VERSION = z3-4.15.4

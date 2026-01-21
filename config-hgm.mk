@@ -43,11 +43,8 @@ GHDLSYNTH_VERSION = 1b97dc71377cea7e861be6625be4353c377a5fb5
 # (debian 11, ubuntu 18 and ubuntu 22)
 NEXTPNR_VERSION =
 
-# Latest UVVM version that compiles with GHDL
-#UVVM_VERSION = v2019.09.02
-
-# Cocotb, vunit and amaranth-hdl must be installed using pip, so they will be
-# installed in the Dockerfile instead of compiled
-#selected += cocotb
-#selected += vunit
-#selected += amaranth-hdl
+# Pin versions of solvers used by SymbiYosys
+#
+# Latest z3 versions require format.h, which comes which gcc-13, which is not
+# avaiable in debian:12 and ubuntu:22.04
+Z3_VERSION = z3-4.15.4

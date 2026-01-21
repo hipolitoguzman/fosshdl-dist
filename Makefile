@@ -187,6 +187,7 @@ yices2:
 
 z3:
 	git clone https://github.com/Z3Prover/z3.git
+	cd z3 && git checkout $(Z3_VERSION)
 
 super-prove-build:
 	git clone --recursive https://github.com/sterin/super-prove-build
