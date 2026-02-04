@@ -2,7 +2,7 @@
 COMMON_SW="git lcov gcovr gtkwave octave"
 COMMON_DEPS="make build-essential g++"
 YOSYS_DEPS="tcl tcl-dev clang"
-SBY_DEPS="libgmp-dev ninja-build python3-dev curl"
+SBY_DEPS="libgmp-dev ninja-build python3-dev curl libgmp-dev libmpfr-dev build-essential ninja-build git pkg-config python3-pip python3-venv clang cmake"
 GHDL_DEPS="wget gnat texinfo zlib1g-dev"
 NVC_DEPS="build-essential automake autoconf flex check llvm-dev pkg-config zlib1g-dev libdw-dev libffi-dev libzstd-dev"
 COCOTB_DEPS="python3-pip"

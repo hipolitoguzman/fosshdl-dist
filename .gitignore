@@ -9,6 +9,8 @@ z3
 super-prove-build
 extavy
 boolector
+rIC3
+ric3_venv
 ghdl
 ghdl-yosys-plugin
 nvc

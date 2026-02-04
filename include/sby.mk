@@ -6,6 +6,7 @@ ifneq (,$(findstring SymbiYosys, $(selected)))
 	#repos += super-prove-build
 	repos += extavy
 	repos += boolector
+	repos += rIC3
 	install-targets += $(PREFIX)/bin/sby
 	install-targets += $(PREFIX)/bin/yices
 	install-targets += $(PREFIX)/bin/z3
@@ -28,6 +29,14 @@ z3:
 
 super-prove-build:
 	git clone --recursive https://github.com/sterin/super-prove-build
+
+# Install from cargo instead of from git, but anyways cargo compiles it
+rIC3:
+	#git clone --recurse-submodules https://github.com/gipsyh/rIC3
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+	python3 -m venv ric3_venv
+	. ric3_venv/bin/activate && pip3 install meson
+	. ric3_venv/bin/activate && . $(HOME)/.cargo/env && rustup default nightly && cargo install --root=$(PREFIX) rIC3
 
 # For avy to compile with gcc 9.3.0 (the one in ubuntu 20.04) we need to apply
 # this patch from Michael Jorgensen:
