@@ -11,6 +11,7 @@ extavy
 boolector
 ghdl
 ghdl-yosys-plugin
+nvc
 uvvm
 osvvm
 verilator

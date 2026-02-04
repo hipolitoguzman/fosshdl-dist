@@ -22,6 +22,7 @@ selected += yosys
 selected += SymbiYosys
 selected += ghdl
 selected += ghdl-yosys-plugin
+selected += nvc
 #selected += uvvm
 #selected += osvvm
 #selected += arachne-pnr

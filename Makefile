@@ -56,6 +56,12 @@ ifneq (,$(findstring ghdl-yosys-plugin, $(selected)))
 	install-targets += $(PREFIX)/share/yosys/plugins/ghdl.so
 endif
 
+ifneq (,$(findstring nvc, $(selected)))
+	repos += nvc
+	binaries += nvc/build/bin/nvc
+	install-targets += $(PREFIX)/bin/nvc
+endif
+
 ifneq (,$(findstring uvvm, $(selected)))
 	repos += uvvm
 	binaries += uvvm_bin
@@ -216,6 +222,10 @@ ghdl-yosys-plugin:
 	git clone https://github.com/ghdl/ghdl-yosys-plugin
 	cd ghdl-yosys-plugin && git checkout $(GHDLSYNTH_VERSION)
 
+nvc:
+	git clone https://github.com/nickg/nvc
+	cd nvc && git checkout $(NVC_VERSION)
+
 uvvm:
 	git clone https://github.com/UVVM/UVVM uvvm --branch $(UVVM_VERSION)
 
@@ -310,6 +320,13 @@ $(PREFIX)/share/yosys/plugins/ghdl.so: ghdl-yosys-plugin/ghdl.so
 	cd ghdl-yosys-plugin && \
 	. $(PREFIX)/env.rc && \
 	make install
+
+# Compile and install nvc
+nvc/build/bin/nvc: nvc
+	cd nvc && ./autogen.sh && mkdir -p build && cd build && ../configure --prefix=$(PREFIX) && make
+
+$(PREFIX)/bin/nvc: nvc/build/bin/nvc
+	cd nvc/build && $(SUDO) make install
 
 # Compile and install nextpnr
 
