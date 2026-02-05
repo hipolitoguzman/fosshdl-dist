@@ -5,14 +5,14 @@ ifneq (,$(findstring SymbiYosys, $(selected)))
 	repos += z3
 	#repos += super-prove-build
 	repos += extavy
-	repos += boolector
+	#repos += boolector
 	repos += rIC3
 	install-targets += $(PREFIX)/bin/sby
 	install-targets += $(PREFIX)/bin/yices
 	install-targets += $(PREFIX)/bin/z3
 	#install-targets += $(PREFIX)/bin/suprove
 	install-targets += $(PREFIX)/bin/avy
-	install-targets += $(PREFIX)/bin/boolector
+	#install-targets += $(PREFIX)/bin/boolector
 endif
 
 # Clone sby and solvers
