@@ -93,7 +93,7 @@ $(PREFIX)/bin/suprove: $(PREFIX)/super_prove/bin/super_prove.sh
 
 $(PREFIX)/bin/avy: extavy
 	cd extavy && mkdir -p build && cd build && \
-	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX) .. && \
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && \
 	make -j $(NPROC) -l $(NPROC) && \
 	pwd && \
 	$(SUDO) cp avy/src/avy $(PREFIX)/bin && \
