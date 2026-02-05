@@ -11,6 +11,8 @@ extavy
 boolector
 rIC3
 ric3_venv
+bitwuzla
+bitwuzla_venv
 ghdl
 ghdl-yosys-plugin
 nvc

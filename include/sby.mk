@@ -6,6 +6,7 @@ ifneq (,$(findstring SymbiYosys, $(selected)))
 	#repos += super-prove-build
 	repos += extavy
 	#repos += boolector
+	repos += bitwuzla
 	repos += rIC3
 	install-targets += $(PREFIX)/bin/sby
 	install-targets += $(PREFIX)/bin/yices
@@ -13,6 +14,7 @@ ifneq (,$(findstring SymbiYosys, $(selected)))
 	#install-targets += $(PREFIX)/bin/suprove
 	install-targets += $(PREFIX)/bin/avy
 	#install-targets += $(PREFIX)/bin/boolector
+	install-targets += $(PREFIX)/bin/bitwuzla
 endif
 
 # Clone sby and solvers
@@ -53,6 +55,9 @@ extavy:
 
 boolector:
 	git clone https://github.com/boolector/boolector
+
+bitwuzla:
+	git clone https://github.com/bitwuzla/bitwuzla
 
 # Compile and install symbiyosys. This is all done in one step since it is all
 # grouped into a single step in symbiosys' Makefile
@@ -109,3 +114,7 @@ $(PREFIX)/bin/boolector: boolector
 	$(SUDO) cp build/bin/btor* $(PREFIX)/bin/ && \
 	$(SUDO) cp deps/btor2tools/build/bin/btorsim $(PREFIX)/bin/
 
+$(PREFIX)/bin/bitwuzla: bitwuzla
+	python3 -m venv bitwuzla_venv
+	. bitwuzla_venv/bin/activate && pip3 install meson
+	. bitwuzla_venv/bin/activate && cd bitwuzla && ./configure.py --prefix=$(PREFIX) && cd build && ninja install
