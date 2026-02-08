@@ -19,11 +19,13 @@ endif
 
 # Clone sby and solvers
 
-symbiyosys:
-	git clone https://github.com/YosysHQ/SymbiYosys symbiyosys
+sby:
+	git clone https://github.com/YosysHQ/sby sby
+	cd sby && git checkout $(SBY_VERSION)
 
 yices2:
 	git clone https://github.com/SRI-CSL/yices2.git
+	cd yices2 && git checkout $(YICES2_VERSION)
 
 z3:
 	git clone https://github.com/Z3Prover/z3.git
@@ -31,6 +33,7 @@ z3:
 
 super-prove-build:
 	git clone --recursive https://github.com/sterin/super-prove-build
+	cd super-prove-build && git checkout $(SUPER-PROVE_VERSION)
 
 # Install from cargo instead of from git, but anyways cargo compiles it
 rIC3:
@@ -38,7 +41,7 @@ rIC3:
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 	python3 -m venv ric3_venv
 	. ric3_venv/bin/activate && pip3 install meson
-	. ric3_venv/bin/activate && . $(HOME)/.cargo/env && rustup default nightly && cargo install --root=$(PREFIX) rIC3
+	. ric3_venv/bin/activate && . $(HOME)/.cargo/env && rustup default nightly && cargo install --root=$(PREFIX) rIC3 --version=$(RIC3_VERSION)
 
 # For avy to compile with gcc 9.3.0 (the one in ubuntu 20.04) we need to apply
 # this patch from Michael Jorgensen:
@@ -48,6 +51,7 @@ rIC3:
 # We will just perform a substitution in the affected files
 extavy:
 	git clone https://bitbucket.org/arieg/extavy.git
+	cd extavy && git checkout $(EXTAVY_VERSION)
 	cd extavy && git submodule update --init
 	sed -i 's/bool isSolved () { return m_Trivial || m_State || !m_State; }/bool isSolved () { return bool{m_Trivial || m_State || !m_State}; }/' extavy/avy/src/ItpGlucose.h
 	sed -i 's/return tobool (m_pSat->modelValue(x));/boost::logic::tribool y = tobool (m_pSat->modelValue(x));\nreturn bool{y};/' extavy/avy/src/ItpGlucose.h
@@ -55,19 +59,21 @@ extavy:
 
 boolector:
 	git clone https://github.com/boolector/boolector
+	cd boolector && git checkout $(BOOLECTOR_VERSION)
 
 bitwuzla:
 	git clone https://github.com/bitwuzla/bitwuzla
+	cd bitwuzla && git checkout $(BITWUZLA_VERSION)
 
 # Compile and install symbiyosys. This is all done in one step since it is all
 # grouped into a single step in symbiosys' Makefile
-$(PREFIX)/bin/sby: symbiyosys
-	$(SUDO) make -j $(NPROC) -l $(NPROC) -C symbiyosys PREFIX=$(PREFIX) install
+$(PREFIX)/bin/sby: sby
+	$(SUDO) make -j $(NPROC) -l $(NPROC) -C sby PREFIX=$(PREFIX) install
 
 # Compile and install the solvers that SymbiYosys can use
-# Instructions came from here:
+# Some instructions came from here:
 # https://yosyshq.readthedocs.io/projects/sby/en/latest/install.html#prerequisites
-# TODO: check for correctness, add to binaries list
+# , some others came from the respective repositories
 $(PREFIX)/bin/yices: yices2
 	cd yices2 && \
 	autoconf && \

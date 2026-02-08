@@ -10,6 +10,7 @@ endif
 # Clone
 arachne-pnr:
 	git clone https://github.com/YosysHQ/arachne-pnr
+	cd arachne-pnr && git checkout $(ARACHNE-PNR_VERSION)
 
 # Compile
 arachne-pnr/bin/arachne-pnr: | arachne-pnr $(PREFIX)/bin/icepack

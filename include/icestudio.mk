@@ -9,6 +9,7 @@ icestudio: $(PREFIX)/icestudio
 
 $(PREFIX)/icestudio:
 	git clone https://github.com/FPGAwars/icestudio $(PREFIX)/icestudio
+	cd icestudio && git checkout $(ICESTUDIO_VERSION)
 
 # Install
 $(PREFIX)/bin/icestudio: $(PREFIX)/icestudio

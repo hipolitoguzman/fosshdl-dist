@@ -8,7 +8,7 @@ endif
 # Clone
 verilator:
 	git clone https://github.com/verilator/verilator
-
+	cd verilator && git checkout $(VERILATOR_VERSION)
 
 # Compile
 verilator/verilator: verilator

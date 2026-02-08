@@ -3,7 +3,7 @@ versions.log
 config.mk
 fosshdl.tar.gz
 yosys
-symbiyosys
+sby
 yices2
 z3
 super-prove-build

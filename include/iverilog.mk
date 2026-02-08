@@ -8,6 +8,7 @@ endif
 # Clone
 iverilog:
 	git clone https://github.com/steveicarus/iverilog
+	cd iverilog && git checkout $(IVERILOG_VERSION)
 
 # Compile
 iverilog/iverilog: iverilog

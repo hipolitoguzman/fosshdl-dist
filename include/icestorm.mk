@@ -8,6 +8,7 @@ endif
 # Clone
 icestorm:
 	git clone https://github.com/cliffordwolf/icestorm
+	cd icestorm && git checkout $(ICESTORM_VERSION)
 
 # Compile
 icestorm/icepack/icepack: | icestorm
