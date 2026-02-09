@@ -3,18 +3,21 @@ ifneq (,$(findstring SymbiYosys, $(selected)))
 	repos += sby
 	repos += yices2
 	repos += z3
-	#repos += super-prove-build
 	repos += extavy
-	#repos += boolector
-	repos += bitwuzla
 	repos += rIC3
+	repos += bitwuzla
 	install-targets += $(PREFIX)/bin/sby
 	install-targets += $(PREFIX)/bin/yices
 	install-targets += $(PREFIX)/bin/z3
-	#install-targets += $(PREFIX)/bin/suprove
 	install-targets += $(PREFIX)/bin/avy
-	#install-targets += $(PREFIX)/bin/boolector
+	install-targets += $(PREFIX)/bin/ric3
 	install-targets += $(PREFIX)/bin/bitwuzla
+	# Boolector was succeeded by bitwuzla
+	# Super-prove does no longer compile in newer distros
+	#repos += boolector
+	#repos += super-prove-build
+	#install-targets += $(PREFIX)/bin/boolector
+	#install-targets += $(PREFIX)/bin/suprove
 endif
 
 # Clone sby and solvers
@@ -35,14 +38,6 @@ super-prove-build:
 	git clone --recursive https://github.com/sterin/super-prove-build
 	cd super-prove-build && git checkout $(SUPER-PROVE_VERSION)
 
-# Install from cargo instead of from git, but anyways cargo compiles it
-rIC3:
-	#git clone --recurse-submodules https://github.com/gipsyh/rIC3
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-	python3 -m venv ric3_venv
-	. ric3_venv/bin/activate && pip3 install meson
-	. ric3_venv/bin/activate && . $(HOME)/.cargo/env && rustup default nightly && cargo install --root=$(PREFIX) rIC3 --version=$(RIC3_VERSION)
-
 # For avy to compile with gcc 9.3.0 (the one in ubuntu 20.04) we need to apply
 # this patch from Michael Jorgensen:
 # https://github.com/MJoergen/formal/blob/main/INSTALL.md
@@ -60,6 +55,12 @@ extavy:
 boolector:
 	git clone https://github.com/boolector/boolector
 	cd boolector && git checkout $(BOOLECTOR_VERSION)
+
+rIC3:
+	git clone --recurse-submodules https://github.com/gipsyh/rIC3
+	cd rIC3 && git checkout $(RIC3_VERSION)
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+	python3 -m venv ric3_venv
 
 bitwuzla:
 	git clone https://github.com/bitwuzla/bitwuzla
@@ -119,6 +120,13 @@ $(PREFIX)/bin/boolector: boolector
 	$(SUDO) cp build/bin/boolector $(PREFIX)/bin/ && \
 	$(SUDO) cp build/bin/btor* $(PREFIX)/bin/ && \
 	$(SUDO) cp deps/btor2tools/build/bin/btorsim $(PREFIX)/bin/
+
+$(PREFIX)/bin/ric3:
+	. ric3_venv/bin/activate && pip3 install meson
+	. ric3_venv/bin/activate && . $(HOME)/.cargo/env && \
+	rustup default nightly && cd rIC3 && \
+	cargo b --release && \
+	cargo install --path . --root $(PREFIX)
 
 $(PREFIX)/bin/bitwuzla: bitwuzla
 	python3 -m venv bitwuzla_venv

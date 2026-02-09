@@ -107,5 +107,5 @@ clean:
 .PHONY: realclean
 realclean: clean
 	rm -f fosshdl.tar.gz
-	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz ric3_venv
+	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION).tar.gz ric3_venv bitwuzla_venv
 
