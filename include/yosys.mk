@@ -16,7 +16,5 @@ yosys/yosys: | yosys
 	make -j $(NPROC) -l $(NPROC) -C yosys PREFIX=$(PREFIX)
 
 # Install
-ifneq ($(USE_SYMBIOTIC),yes)
 $(PREFIX)/bin/yosys: yosys/yosys
 	make -C yosys install PREFIX=$(PREFIX)
-endif
