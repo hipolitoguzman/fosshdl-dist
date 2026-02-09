@@ -15,5 +15,5 @@ eqy/src/eqy_partition: eqy
 	make -j $(NPROC) -l $(NPROC) -C eqy PREFIX=$(PREFIX)
 
 # Install
-$(PREFIX)/bin/eqy:
+$(PREFIX)/bin/eqy: eqy/src/eqy_partition
 	make -C eqy install PREFIX=$(PREFIX)
