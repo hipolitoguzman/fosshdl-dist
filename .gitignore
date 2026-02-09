@@ -4,6 +4,7 @@ config.mk
 fosshdl.tar.gz
 yosys
 sby
+eqy
 yices2
 z3
 super-prove-build

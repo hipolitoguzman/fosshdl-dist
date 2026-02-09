@@ -4,6 +4,7 @@ include config.mk
 
 include include/yosys.mk
 include include/sby.mk
+include include/eqy.mk
 include include/ghdl.mk
 include include/nvc.mk
 include include/arachnepnr.mk
