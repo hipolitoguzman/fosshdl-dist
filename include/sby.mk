@@ -61,6 +61,7 @@ rIC3:
 	cd rIC3 && git checkout $(RIC3_VERSION)
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 	python3 -m venv ric3_venv
+	. ric3_venv/bin/activate && pip3 install meson
 
 bitwuzla:
 	git clone https://github.com/bitwuzla/bitwuzla
@@ -121,8 +122,7 @@ $(PREFIX)/bin/boolector: boolector
 	$(SUDO) cp build/bin/btor* $(PREFIX)/bin/ && \
 	$(SUDO) cp deps/btor2tools/build/bin/btorsim $(PREFIX)/bin/
 
-$(PREFIX)/bin/ric3:
-	. ric3_venv/bin/activate && pip3 install meson
+$(PREFIX)/bin/ric3: rIC3
 	. ric3_venv/bin/activate && . $(HOME)/.cargo/env && \
 	rustup default nightly && cd rIC3 && \
 	cargo b --release && \
