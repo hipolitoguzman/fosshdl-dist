@@ -1,6 +1,6 @@
 # Add targets if selected in config.mk
 ifneq (,$(findstring SymbiYosys, $(selected)))
-	repos += symbiyosys
+	repos += sby
 	repos += yices2
 	repos += z3
 	#repos += super-prove-build
