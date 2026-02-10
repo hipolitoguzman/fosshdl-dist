@@ -13,6 +13,7 @@ RUN set -ex ; \
   # Install software we need
   apt install -y git make tar gcc lcov gcovr octave gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
   apt install -y g++ python3 python3-dev python3-pip python3-venv; \
+  apt install -y libdw1t64 llvm-dev ; \ # NVC dependencies
   # Apt cleanup
   apt-get -y clean ; \
   apt-get -y autoclean ; \
