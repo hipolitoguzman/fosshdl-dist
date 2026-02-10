@@ -64,12 +64,18 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Now the env is activated, so we can now install the tools we need
 RUN \
   pip3 install Click ; \
-  pip3 install vunit-hdl ; \
   pip3 install matplotlib ; \
   pip3 install numpy ; \
   pip3 install oct2py ; \
   pip3 install --upgrade amaranth[builtin-yosys] ; \
   pip3 install cocotb ;
+
+# Recent VUnit versions seem to have some trouble with their installation under
+# new distros (for example ubuntu:24.04), that are fixed using
+# --no-build-isolation when installing
+RUN \
+  pip3 install setuptools ; \
+  pip3 install vunit-hdl --no-build-isolation
 
 # Solve weird issue which makes nextpnr not find libQt5Core sometimes
 #
