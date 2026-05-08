@@ -12,7 +12,9 @@ build-software: &build_software
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - sh ./scripts/install_deps_common.sh
+    - | if [[ "$IMAGE" == "ubuntu:22.04" ]]; then
+        sh ./scripts/install_cmake_old_distros.sh
+      fi
     - sh ./scripts/install_deps_$IMAGE.sh
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
@@ -31,7 +33,7 @@ build-software: &build_software
         IMAGE: [ubuntu:24.04]
       - USER: [hgm]
         IMAGE: [ubuntu:24.04, debian:13]
-      - USER: [ama]
+      - USER: [opt]
         IMAGE: [ubuntu:24.04]
   artifacts:
     when: always
