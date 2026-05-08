@@ -31,6 +31,8 @@ build-software: &build_software
         IMAGE: [ubuntu:24.04]
       - USER: [hgm]
         IMAGE: [ubuntu:24.04, debian:13]
+      - USER: [ama]
+        IMAGE: [ubuntu:24.04]
   artifacts:
     when: always
     paths:
