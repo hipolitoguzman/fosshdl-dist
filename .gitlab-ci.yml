@@ -12,7 +12,8 @@ build-software: &build_software
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - | if [[ "$IMAGE" == "ubuntu:22.04" ]]; then
+    - |
+      if [[ "$IMAGE" == "ubuntu:22.04" ]]; then
         sh ./scripts/install_cmake_old_distros.sh
       fi
     - sh ./scripts/install_deps_$IMAGE.sh
