@@ -38,10 +38,19 @@ GHDL_VERSION = v5.1.1
 # in time than the ghdl version, since it uses symbols defined in ghdl
 GHDLSYNTH_VERSION = 1b97dc71377cea7e861be6625be4353c377a5fb5
 
+# Pin nvc version
+NVC_VERSION = 1.21.0
+
+# Pin yosys version
+YOSYS_VERSION = v0.64
+
+# Pin eqy version
+EQY_VERSION = $(YOSYS_VERSION)
+
 # Pin nextpnr version. As of end of 2024 / beginning of 2025, latest versions
 # require a version of cmake (3.25) that is not available in older distros
 # (debian 11, ubuntu 18 and ubuntu 22)
-NEXTPNR_VERSION =
+NEXTPNR_VERSION = nextpnr-0.10
 
 # Pin versions of solvers used by SymbiYosys
 #

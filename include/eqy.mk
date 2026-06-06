@@ -1,7 +1,7 @@
 # Add targets if selected in config.mk
 ifneq (,$(findstring eqy, $(selected)))
 	repos += eqy
-	binaries += eqy/src/eqy_partition.so
+	binaries += eqy/src/eqy_partition
 	install-targets += $(PREFIX)/bin/eqy
 	# TODO : fail here if yosys is not selected
 endif

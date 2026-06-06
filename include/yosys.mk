@@ -8,7 +8,7 @@ endif
 # Clone
 yosys:
 	git clone --recursive https://github.com/YosysHQ/yosys
-	cd yosys && git checkout $(YOSYS_VERSION)
+	cd yosys && git checkout $(YOSYS_VERSION) --recurse-submodules
 
 # Compile
 yosys/yosys: | yosys

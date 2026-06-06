@@ -38,13 +38,22 @@ GHDL_VERSION = master
 # in time than the ghdl version, since it uses symbols defined in ghdl
 GHDLSYNTH_VERSION = master
 
+# Pin nvc version
+NVC_VERSION = master
+
+# Pin yosys version
+YOSYS_VERSION = master
+
+# Pin eqy version
+EQY_VERSION = $(YOSYS_VERSION)
+
 # Pin nextpnr version. As of end of 2024 / beginning of 2025, latest versions
 # require a version of cmake (3.25) that is not available in older distros
 # (debian 11, ubuntu 18 and ubuntu 22)
-NEXTPNR_VERSION =
+NEXTPNR_VERSION = main
 
 # Pin versions of solvers used by SymbiYosys
 #
 # Latest z3 versions require format.h, which comes which gcc-13, which is not
 # avaiable in debian:12 and ubuntu:22.04
-Z3_VERSION = z3-4.15.4
+Z3_VERSION = master
