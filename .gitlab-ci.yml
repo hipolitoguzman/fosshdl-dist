@@ -12,7 +12,10 @@ build-software: &build_software
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - sh ./scripts/install_deps_common.sh
+    - |
+      if [[ "$IMAGE" == "ubuntu:22.04" ]]; then
+        sh ./scripts/install_cmake_old_distros.sh
+      fi
     - sh ./scripts/install_deps_$IMAGE.sh
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
@@ -28,9 +31,11 @@ build-software: &build_software
   parallel:
     matrix:
       - USER: [salas]
-        IMAGE: [ubuntu:22.04, ubuntu:24.04]
+        IMAGE: [ubuntu:24.04]
       - USER: [hgm]
-        IMAGE: [ubuntu:22.04, ubuntu:24.04, debian:12, debian:13]
+        IMAGE: [ubuntu:24.04, debian:13]
+      - USER: [opt]
+        IMAGE: [ubuntu:24.04]
   artifacts:
     when: always
     paths:

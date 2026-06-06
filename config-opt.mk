@@ -1,5 +1,5 @@
 # Where to install
-PREFIX = /home/hipolito/opt/fosshdl-weekly
+PREFIX = /opt/fosshdl
 
 # If your user has write permissions in the install location (such as when
 # installing in your $(HOME), you can comment the SUDO definition line below
@@ -20,7 +20,6 @@ GCC_VERSION = 12.1.0
 # List of software to compile and install. Comment any one you don't want.
 selected += yosys
 selected += SymbiYosys
-selected += eqy
 selected += ghdl
 selected += ghdl-yosys-plugin
 selected += nvc
@@ -32,11 +31,11 @@ selected += iverilog
 
 # Pin GHDL version (typically to the latest one in which our designs work and
 # where we have no troubles generating code coverage)
-GHDL_VERSION = master
+GHDL_VERSION = v5.1.1
 
 # Select ghdl-yosys-plugin version. This version cannot be much more advanced
 # in time than the ghdl version, since it uses symbols defined in ghdl
-GHDLSYNTH_VERSION = master
+GHDLSYNTH_VERSION = 1b97dc71377cea7e861be6625be4353c377a5fb5
 
 # Pin nextpnr version. As of end of 2024 / beginning of 2025, latest versions
 # require a version of cmake (3.25) that is not available in older distros

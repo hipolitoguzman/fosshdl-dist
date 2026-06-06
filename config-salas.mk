@@ -20,10 +20,10 @@ GCC_VERSION = 12.1.0
 # List of software to compile and install. Comment any one you don't want.
 selected += yosys
 selected += SymbiYosys
+selected += eqy
 selected += ghdl
 selected += ghdl-yosys-plugin
-#selected += uvvm
-#selected += osvvm
+selected += nvc
 #selected += arachne-pnr
 selected += nextpnr
 selected += icestorm
