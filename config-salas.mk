@@ -32,17 +32,17 @@ selected += iverilog
 
 # Pin GHDL version (typically to the latest one in which our designs work and
 # where we have no troubles generating code coverage)
-GHDL_VERSION = v5.1.1
+GHDL_VERSION = v6.0.0
 
 # Select ghdl-yosys-plugin version. This version cannot be much more advanced
 # in time than the ghdl version, since it uses symbols defined in ghdl
-GHDLSYNTH_VERSION = 1b97dc71377cea7e861be6625be4353c377a5fb5
+GHDLSYNTH_VERSION = ghdl-v6.0.0
 
 # Pin nvc version
 NVC_VERSION = r1.21.0
 
 # Pin yosys version
-YOSYS_VERSION = v0.64
+YOSYS_VERSION = v0.66
 
 # Pin eqy version
 EQY_VERSION = $(YOSYS_VERSION)
@@ -56,4 +56,4 @@ NEXTPNR_VERSION = nextpnr-0.10
 #
 # Latest z3 versions require format.h, which comes which gcc-13, which is not
 # avaiable in debian:12 and ubuntu:22.04
-Z3_VERSION = z3-4.15.4
+Z3_VERSION = z3-4.16.0
