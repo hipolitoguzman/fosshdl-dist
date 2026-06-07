@@ -39,7 +39,7 @@ GHDL_VERSION = v5.1.1
 GHDLSYNTH_VERSION = 1b97dc71377cea7e861be6625be4353c377a5fb5
 
 # Pin nvc version
-NVC_VERSION = 1.21.0
+NVC_VERSION = r1.21.0
 
 # Pin yosys version
 YOSYS_VERSION = v0.64
