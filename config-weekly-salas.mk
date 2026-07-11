@@ -42,7 +42,7 @@ GHDLSYNTH_VERSION = master
 NVC_VERSION = master
 
 # Pin yosys version
-YOSYS_VERSION = master
+YOSYS_VERSION = main
 
 # Pin eqy version
 EQY_VERSION = $(YOSYS_VERSION)
