@@ -11,7 +11,7 @@ RUN set -ex ; \
   # Mandatory update
   apt-get -y update ; \
   # Install software we need
-  apt install -y git make tar gcc lcov gcovr octave gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1 ; \
+  apt install -y git make tar gcc lcov gcovr octave gnat zlib1g-dev gtkwave libcanberra-gtk-module libboost-all-dev libftdi1  libqt6openglwidgets6; \
   apt install -y g++ python3 python3-dev python3-pip python3-venv; \
   # NVC dependencies
   apt install -y libdw1t64 llvm-dev ; \
