@@ -84,11 +84,19 @@ $(PREFIX)/bin/yices: yices2
 	$(SUDO) make install
 
 $(PREFIX)/bin/z3: z3
-	cd z3 && \
-	python3 scripts/mk_make.py --prefix=$(PREFIX) && \
-	cd build && \
-	make -j $(NPROC) -l $(NPROC) && \
-	$(SUDO) make install
+	if [ -f z3/CMakeLists.txt ]; then \
+		echo "==> Building z3 (CMake Flow)"; \
+		cmake -B z3/build -S z3 -DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_BUILD_TYPE=Release && \
+		cmake --build z3/build --parallel $(NPROC) && \
+		$(SUDO) cmake --install z3/build; \
+	else \
+		echo "==> Building z3 (Legacy Flow)"; \
+		cd z3 && \
+		python3 scripts/mk_make.py --prefix=$(PREFIX) && \
+		cd build && \
+		make -j $(NPROC) -l $(NPROC) && \
+		$(SUDO) make install; \
+	fi
 
 $(PREFIX)/super_prove/bin/super_prove.sh: | super-prove-build
 	cd super-prove-build && mkdir -p build && cd build && \
