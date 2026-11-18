@@ -3,7 +3,7 @@ stages:
   - dockerize
 
 # Build the software
-build-software: &build_software
+.build_template:
   stage: build
   image: $IMAGE
   timeout: 6 hours
@@ -42,17 +42,20 @@ build-software: &build_software
       - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
       - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
 
-#build-software-weekly:
-#  <<: *build_software
-#  image: $IMAGE
-#  rules:
-#    - if: $IS_WEEKLY == "true"
-#  parallel:
-#    matrix:
-#      - USER: [salas]
-#        IMAGE: [ubuntu:24.04]
-#      - USER: [hgm]
-#        IMAGE: [ubuntu:24.04, debian:12]
+build:
+  extends: .build_template
+  artifacts:
+    expire_in: never
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $IS_WEEKLY != "true"
+
+build_weekly:
+  extends: .build_template
+  artifacts:
+    expire_in: 4 weeks
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $IS_WEEKLY == "true"
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
 
 # Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
@@ -65,13 +68,22 @@ build-software: &build_software
 dockerimages:
   stage: dockerize
   image: docker:25
-  timeout: 2 hour
+  timeout: 2 hours
+  needs:
+    - job: build
+      optional: true
+      parallel:
+        matrix:
+          - USER: [salas]
+            IMAGE: [ubuntu:24.04]
+    - job: build_weekly
+      optional: true
+      parallel:
+        matrix:
+          - USER: [salas]
+            IMAGE: [ubuntu:24.04]
   # If we add more than one possibility in the parallel:matrix, then we will
   # have to include that information into the tag
-  parallel:
-    matrix:
-      - USER: [salas]
-        IMAGE: [ubuntu:24.04]
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
@@ -89,8 +101,5 @@ dockerimages:
     - mv fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz fosshdl.tar.gz
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - |
-      docker login \
-        -u "$CI_REGISTRY_USER" \
-        -p "$CI_REGISTRY_PASSWORD" \
-        $CI_REGISTRY
+      echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker push "$CI_REGISTRY_IMAGE${tag}"
