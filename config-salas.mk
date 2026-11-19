@@ -32,11 +32,11 @@ selected += iverilog
 
 # Pin GHDL version (typically to the latest one in which our designs work and
 # where we have no troubles generating code coverage)
-GHDL_VERSION = v5.1.1
+GHDL_VERSION = v6.0.0
 
 # Select ghdl-yosys-plugin version. This version cannot be much more advanced
 # in time than the ghdl version, since it uses symbols defined in ghdl
-GHDLSYNTH_VERSION = 1b97dc71377cea7e861be6625be4353c377a5fb5
+GHDLSYNTH_VERSION = ghdl-v6.0.0
 
 # Pin nvc version
 NVC_VERSION = r1.21.0
@@ -50,7 +50,7 @@ EQY_VERSION = $(YOSYS_VERSION)
 # Pin nextpnr version. As of end of 2024 / beginning of 2025, latest versions
 # require a version of cmake (3.25) that is not available in older distros
 # (debian 11, ubuntu 18 and ubuntu 22)
-NEXTPNR_VERSION = nextpnr-0.10
+NEXTPNR_VERSION = c22d070975236450a58ea8e984b5662e9fc7d18e
 
 # Pin versions of solvers used by SymbiYosys
 #
