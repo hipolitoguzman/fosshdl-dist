@@ -69,6 +69,10 @@ dockerimages:
   stage: dockerize
   image: docker:25
   timeout: 2 hours
+  parallel:
+    matrix:
+      - USER: [salas]
+        IMAGE: [ubuntu:24.04]
   needs:
     - job: build
       optional: true
