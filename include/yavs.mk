@@ -9,9 +9,11 @@ endif
 yavs:
 	git clone --recursive https://github.com/ru551n/yavs.git
 	cd yavs && git checkout $(YAVS_VERSION)
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
 
 # Compile
 yavs/target/release/yavs: yavs
+	$(HOME)/.cargo/env && \
 	cd yavs && \
 	cargo build --locked --release -p yavs --features clift
 
