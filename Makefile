@@ -7,6 +7,7 @@ include include/sby.mk
 include include/eqy.mk
 include include/ghdl.mk
 include include/nvc.mk
+include include/yavs.mk
 include include/arachnepnr.mk
 include include/nextpnr.mk
 include include/icestorm.mk

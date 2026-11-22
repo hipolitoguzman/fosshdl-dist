@@ -75,7 +75,8 @@ RUN \
 # --no-build-isolation when installing
 RUN \
   pip3 install setuptools ; \
-  pip3 install vunit-hdl --no-build-isolation
+  pip3 install vunit-hdl --no-build-isolation ; \
+  pip3 install vunit-yavs --no-build-isolation
 
 # Solve weird issue which makes nextpnr not find libQt5Core sometimes
 #

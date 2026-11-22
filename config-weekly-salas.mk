@@ -24,6 +24,7 @@ selected += eqy
 selected += ghdl
 selected += ghdl-yosys-plugin
 selected += nvc
+selected += yavs
 #selected += arachne-pnr
 selected += nextpnr
 selected += icestorm
@@ -40,6 +41,9 @@ GHDLSYNTH_VERSION = master
 
 # Pin nvc version
 NVC_VERSION = master
+
+# Pin yavs version
+YAVS_VERSION = main
 
 # Pin yosys version
 YOSYS_VERSION = main
