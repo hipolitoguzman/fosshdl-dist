@@ -21,7 +21,6 @@ stages:
   - "icestorm"
   - "verilator"
   - "iverilog"
-  - "icestorm"
 
 .build_tool_template:
   stage: build
