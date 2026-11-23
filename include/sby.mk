@@ -59,7 +59,7 @@ boolector:
 rIC3:
 	git clone --recurse-submodules https://github.com/gipsyh/rIC3
 	cd rIC3 && git checkout $(RIC3_VERSION)
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile-minimal
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
 	python3 -m venv ric3_venv
 	. ric3_venv/bin/activate && pip3 install meson
 
