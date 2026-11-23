@@ -1,16 +1,30 @@
 stages:
+  - prepare
   - build
   - package
   - dockerize
 
-# Reusable matrix of (USER, IMAGE) targets
+# Unique OS builder images (1 job per OS, independent of USER)
+.builder_matrix: &builder_matrix
+  - IMAGE: "ubuntu:24.04"
+    IMAGE_TAG: "ubuntu-24.04"
+  - IMAGE: "debian:13"
+    IMAGE_TAG: "debian-13"
+
+# Reusable matrix of (USER, IMAGE, IMAGE_TAG) targets
 .target_matrix: &target_matrix
   - USER: [salas]
-    IMAGE: [ubuntu:24.04]
+    IMAGE: ["ubuntu:24.04"]
+    IMAGE_TAG: ["ubuntu-24.04"]
   - USER: [hgm]
-    IMAGE: [ubuntu:24.04, debian:13]
+    IMAGE: ["ubuntu:24.04"]
+    IMAGE_TAG: ["ubuntu-24.04"]
+  - USER: [hgm]
+    IMAGE: ["debian:13"]
+    IMAGE_TAG: ["debian-13"]
   - USER: [opt]
-    IMAGE: [ubuntu:24.04]
+    IMAGE: ["ubuntu:24.04"]
+    IMAGE_TAG: ["ubuntu-24.04"]
 
 # Independent tools (all compile concurrently per USER/IMAGE)
 .standalone_tools: &standalone_tools
@@ -22,18 +36,36 @@ stages:
   - "verilator"
   - "iverilog"
 
+# 0. Prepare stage: build and cache OS dependency images once per distro
+prepare_builders:
+  stage: prepare
+  image: docker:25
+  timeout: 1 hour
+  parallel:
+    matrix: *builder_matrix
+  script:
+    - BUILDER_IMAGE="$CI_REGISTRY_IMAGE/builder:$IMAGE_TAG"
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker pull "$BUILDER_IMAGE" || true
+    - >
+      docker build
+      --cache-from "$BUILDER_IMAGE"
+      --build-arg BASE_IMAGE="$IMAGE"
+      -f Dockerfile.builder
+      -t "$BUILDER_IMAGE" .
+    - docker push "$BUILDER_IMAGE"
+
 .build_tool_template:
   stage: build
-  image: $IMAGE
+  image: $CI_REGISTRY_IMAGE/builder:$IMAGE_TAG
   timeout: 6 hours
+  needs:
+    - job: prepare_builders
+      parallel:
+        matrix:
+          - IMAGE: '$[[ matrix.IMAGE ]]'
+            IMAGE_TAG: '$[[ matrix.IMAGE_TAG ]]'
   script:
-    - DEBIAN_FRONTEND=noninteractive apt update
-    - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
-    - |
-      if [[ "$IMAGE" == "ubuntu:22.04" ]]; then
-        sh ./scripts/install_cmake_old_distros.sh
-      fi
-    - sh ./scripts/install_deps_$IMAGE.sh
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
         cp "config-weekly-$USER.mk" config.mk
@@ -75,13 +107,20 @@ build_standalone:
   parallel:
     matrix:
       - USER: [salas]
-        IMAGE: [ubuntu:24.04]
+        IMAGE: ["ubuntu:24.04"]
+        IMAGE_TAG: ["ubuntu-24.04"]
         TOOLS: *standalone_tools
       - USER: [hgm]
-        IMAGE: [ubuntu:24.04, debian:13]
+        IMAGE: ["ubuntu:24.04"]
+        IMAGE_TAG: ["ubuntu-24.04"]
+        TOOLS: *standalone_tools
+      - USER: [hgm]
+        IMAGE: ["debian:13"]
+        IMAGE_TAG: ["debian-13"]
         TOOLS: *standalone_tools
       - USER: [opt]
-        IMAGE: [ubuntu:24.04]
+        IMAGE: ["ubuntu:24.04"]
+        IMAGE_TAG: ["ubuntu-24.04"]
         TOOLS: *standalone_tools
 
 # 2. Dependent tools (start as soon as their prerequisite finishes for the same USER/IMAGE)
@@ -95,6 +134,7 @@ build_nextpnr:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
             TOOLS: ["icestorm"]
   variables:
     TOOLS: "nextpnr"
@@ -109,6 +149,7 @@ build_formal:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
             TOOLS: ["yosys"]
   variables:
     TOOLS: "SymbiYosys eqy"
@@ -123,6 +164,7 @@ build_ghdl_yosys_plugin:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
             TOOLS: ["ghdl", "yosys"]
   variables:
     TOOLS: "ghdl-yosys-plugin"
@@ -130,7 +172,7 @@ build_ghdl_yosys_plugin:
 # 3. Package stage: merges fosshdl/ from all tool jobs into the final tarball
 .package_template:
   stage: package
-  image: $IMAGE
+  image: $CI_REGISTRY_IMAGE/builder:$IMAGE_TAG
   parallel:
     matrix: *target_matrix
   needs:
@@ -139,22 +181,26 @@ build_ghdl_yosys_plugin:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
             TOOLS: *standalone_tools
     - job: build_nextpnr
       parallel:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
     - job: build_formal
       parallel:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
     - job: build_ghdl_yosys_plugin
       parallel:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
   script:
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
@@ -201,7 +247,8 @@ dockerimages:
   parallel:
     matrix:
       - USER: [salas]
-        IMAGE: [ubuntu:24.04]
+        IMAGE: ["ubuntu:24.04"]
+        IMAGE_TAG: ["ubuntu-24.04"]
   needs:
     - job: package
       optional: true
@@ -209,6 +256,7 @@ dockerimages:
         matrix:
           - USER: ['$[[ matrix.USER ]]']
             IMAGE: ['$[[ matrix.IMAGE ]]']
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
     - job: package_weekly
       optional: true
       parallel:
@@ -217,6 +265,7 @@ dockerimages:
             IMAGE: ['$[[ matrix.IMAGE ]]']
   # If we add more than one possibility in the parallel:matrix, then we will
   # have to include that information into the tag
+            IMAGE_TAG: ['$[[ matrix.IMAGE_TAG ]]']
   script:
     - |
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
