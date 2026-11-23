@@ -66,7 +66,7 @@ $(PREFIX)/versions.log: versions.log
 # for more information
 env.rc:
 	echo 'export PATH=$(PREFIX)/bin:$$PATH' >> $@
-	echo 'export VUNIT_SIMULATOR=ghdl' >> $@
+	echo 'export VUNIT_SIMULATOR=$${VUNIT_SIMULATOR:-ghdl}' >> $@
 	echo 'export GHDL_PLUGIN_MODULE=ghdl' >> $@
 	echo 'export CC=gcc' >> $@
 
