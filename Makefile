@@ -1,6 +1,9 @@
 # Makefile to make a binary distribution of the FOSS HDL/FPGA tools for teaching
 
-include config.mk
+CONFIG		?= config.mk
+VERSION_LOG	?= $(PREFIX)/versions.log
+
+include $(CONFIG)
 
 include include/yosys.mk
 include include/sby.mk
@@ -31,7 +34,7 @@ install-targets += $(PREFIX)/config.mk
 
 # Keep a log with all commits of all the software tools so different builds
 # can be reproduced, even those who use the latest main/master
-install-targets += $(PREFIX)/versions.log
+install-targets += $(VERSION_LOG)
 
 # Since the included .mk files create targets, we must make 'all' the explicit
 # default
@@ -50,9 +53,9 @@ $(PREFIX)/config.mk: config.mk
 	$(SUDO) mkdir -p $(PREFIX)
 	$(SUDO) cp config.mk $(PREFIX)/config.mk
 
-$(PREFIX)/versions.log: versions.log
+$(VERSION_LOG): versions.log
 	$(SUDO) mkdir -p $(PREFIX)
-	$(SUDO) cp versions.log $(PREFIX)/versions.log
+	$(SUDO) cp versions.log $(VERSION_LOG)
 
 # It seems that for env.rc we have to put ghdl's gcc before system gcc in order
 # for code coverage to work correcly, unless we use the exact system version.

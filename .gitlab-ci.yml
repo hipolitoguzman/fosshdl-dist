@@ -1,14 +1,32 @@
 stages:
   - build
+  - package
   - dockerize
 
-# Build the software
-.build_template:
+# Reusable matrix of (USER, IMAGE) targets
+.target_matrix: &target_matrix
+  - USER: [salas]
+    IMAGE: [ubuntu:24.04]
+  - USER: [hgm]
+    IMAGE: [ubuntu:24.04, debian:13]
+  - USER: [opt]
+    IMAGE: [ubuntu:24.04]
+
+# Independent tools (all compile concurrently per USER/IMAGE)
+.standalone_tools: &standalone_tools
+  - "yosys"
+  - "ghdl"
+  - "nvc"
+  - "yavs"
+  - "icestorm"
+  - "verilator"
+  - "iverilog"
+  - "icestorm"
+
+.build_tool_template:
   stage: build
   image: $IMAGE
   timeout: 6 hours
-  #rules:
-  #- if: $IS_WEEKLY != "true"
   script:
     - DEBIAN_FRONTEND=noninteractive apt update
     - DEBIAN_FRONTEND=noninteractive apt install -y build-essential tar
@@ -19,45 +37,157 @@ stages:
     - sh ./scripts/install_deps_$IMAGE.sh
     - |
       if [[ "$IS_WEEKLY" == "true" ]]; then
-        cp config-weekly-$USER.mk config.mk
+        cp "config-weekly-$USER.mk" config.mk
       else
-        cp config-$USER.mk config.mk
+        cp "config-$USER.mk" config.mk
       fi
-    - make install > fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log 2>&1
-    - make blob
-    - make echo-targets
-    - echo "IS_WEEKLY:" $IS_WEEKLY
-    - mv fosshdl.tar.gz fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
+    # Read PREFIX from config.mk and symlink it to $CI_PROJECT_DIR/fosshdl
+    # so compiled-in paths match PREFIX while GitLab can archive fosshdl/
+    - PREFIX=$(make -s --eval='print-prefix:; @echo $(PREFIX)' print-prefix)
+    - mkdir -p "$CI_PROJECT_DIR/fosshdl" "$(dirname "$PREFIX")"
+    - ln -sfn "$CI_PROJECT_DIR/fosshdl" "$PREFIX"
+    # Filter $TOOLS against what is actually enabled in this USER's config.mk
+    - CONFIG_SELECTED=$(make -s --eval='print-selected:; @echo $(selected)' print-selected)
+    - |
+      ACTIVE_TOOLS=""
+      for t in $TOOLS; do
+        case " $CONFIG_SELECTED " in
+          *" $t "*) ACTIVE_TOOLS="$ACTIVE_TOOLS $t" ;;
+        esac
+      done
+    - JOB_TAG=$(echo "$TOOLS" | tr ' ' '_')
+    - LOG_FILE="fosshdl-$IMAGE-$USER-$JOB_TAG-$CI_PIPELINE_CREATED_AT-build.log"
+    - |
+      if [[ -z "$ACTIVE_TOOLS" ]]; then
+        echo "Skipping '$TOOLS' (not enabled in config.mk)" | tee "$LOG_FILE"
+      else
+        make SUDO= selected="$ACTIVE_TOOLS" VERSION_LOG="$PREFIX/versions-$JOB_TAG.log" install > "$LOG_FILE" 2>&1
+      fi
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - fosshdl/
+      - fosshdl-$IMAGE-$USER-*-$CI_PIPELINE_CREATED_AT-build.log
+
+# 1. Standalone tools
+build_standalone:
+  extends: .build_tool_template
   parallel:
     matrix:
       - USER: [salas]
         IMAGE: [ubuntu:24.04]
+        TOOLS: *standalone_tools
       - USER: [hgm]
         IMAGE: [ubuntu:24.04, debian:13]
+        TOOLS: *standalone_tools
       - USER: [opt]
         IMAGE: [ubuntu:24.04]
+        TOOLS: *standalone_tools
+
+# 2. Dependent tools (start as soon as their prerequisite finishes for the same USER/IMAGE)
+build_nextpnr:
+  extends: .build_tool_template
+  parallel:
+    matrix: *target_matrix
+  needs:
+    - job: build_standalone
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+            TOOLS: ["icestorm"]
+  variables:
+    TOOLS: "nextpnr"
+
+build_formal:
+  extends: .build_tool_template
+  parallel:
+    matrix: *target_matrix
+  needs:
+    - job: build_standalone
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+            TOOLS: ["yosys"]
+  variables:
+    TOOLS: "SymbiYosys eqy"
+
+build_ghdl_yosys_plugin:
+  extends: .build_tool_template
+  parallel:
+    matrix: *target_matrix
+  needs:
+    - job: build_standalone
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+            TOOLS: ["ghdl", "yosys"]
+  variables:
+    TOOLS: "ghdl-yosys-plugin"
+
+# 3. Package stage: merges fosshdl/ from all tool jobs into the final tarball
+.package_template:
+  stage: package
+  image: $IMAGE
+  parallel:
+    matrix: *target_matrix
+  needs:
+    - job: build_standalone
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+            TOOLS: *standalone_tools
+    - job: build_nextpnr
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+    - job: build_formal
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+    - job: build_ghdl_yosys_plugin
+      parallel:
+        matrix:
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+  script:
+    - |
+      if [[ "$IS_WEEKLY" == "true" ]]; then
+        cp "config-weekly-$USER.mk" config.mk
+      else
+        cp "config-$USER.mk" config.mk
+      fi
+    - cat fosshdl/versions-*.log | sort -u > fosshdl/versions.log
+    - rm -f fosshdl/versions-*.log
+    - cp config.mk fosshdl/config.mk
+    # Archive $CI_PROJECT_DIR/fosshdl directly so tar stores real files, not a symlink
+    - tar czf "fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz" -C "$CI_PROJECT_DIR" fosshdl
   artifacts:
-    when: always
     paths:
-      - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT-build.log
       - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
 
-build:
-  extends: .build_template
+package:
+  extends: .package_template
   artifacts:
     expire_in: never
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $IS_WEEKLY != "true"
 
-build_weekly:
-  extends: .build_template
+package_weekly:
+  extends: .package_template
   artifacts:
     expire_in: 4 weeks
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $IS_WEEKLY == "true"
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
 
-# Make the docker image in a separate stage
+# 4. Make the docker image in a separate stage
 # Since it's in a separate stage we can't use the "make dockerfile" target
 # because that would rebuild everything (because of dependencies in the
 # Makefile), so we will just invoke docker. We also want to tag specifically
@@ -74,18 +204,18 @@ dockerimages:
       - USER: [salas]
         IMAGE: [ubuntu:24.04]
   needs:
-    - job: build
+    - job: package
       optional: true
       parallel:
         matrix:
-          - USER: [salas]
-            IMAGE: [ubuntu:24.04]
-    - job: build_weekly
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
+    - job: package_weekly
       optional: true
       parallel:
         matrix:
-          - USER: [salas]
-            IMAGE: [ubuntu:24.04]
+          - USER: ['$[[ matrix.USER ]]']
+            IMAGE: ['$[[ matrix.IMAGE ]]']
   # If we add more than one possibility in the parallel:matrix, then we will
   # have to include that information into the tag
   script:
