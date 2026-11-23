@@ -213,7 +213,7 @@ build_ghdl_yosys_plugin:
     - rm -f fosshdl/versions-*.log
     - cp config.mk fosshdl/config.mk
     # Archive $CI_PROJECT_DIR/fosshdl directly so tar stores real files, not a symlink
-    - tar czf "fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz" -C "$CI_PROJECT_DIR" fosshdl
+    - tar --force-local -czf "fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz" -C "$CI_PROJECT_DIR" fosshdl
   artifacts:
     paths:
       - fosshdl-$IMAGE-$USER-$CI_PIPELINE_CREATED_AT.tar.gz
