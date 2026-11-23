@@ -92,7 +92,8 @@ prepare_builders:
       if [[ -z "$ACTIVE_TOOLS" ]]; then
         echo "Skipping '$TOOLS' (not enabled in config.mk)" | tee "$LOG_FILE"
       else
-        make SUDO= selected="$ACTIVE_TOOLS" VERSION_LOG="$PREFIX/versions-$JOB_TAG.log" install > "$LOG_FILE" 2>&1
+        set -o pipefail
+        make SUDO= selected="$ACTIVE_TOOLS" VERSION_LOG="$PREFIX/versions-$JOB_TAG.log" install 2>&1 | tee "$LOG_FILE"
       fi
   artifacts:
     when: always
