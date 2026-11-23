@@ -13,7 +13,7 @@ yavs:
 
 # Compile
 yavs/target/release/yavs: yavs
-	$(HOME)/.cargo/env && \
+	. $(HOME)/.cargo/env && \
 	cd yavs && \
 	cargo build --locked --release -p yavs --features clift
 
